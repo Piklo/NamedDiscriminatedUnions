@@ -46,6 +46,7 @@ internal class Generator : IIncrementalGenerator
             AppendIsXyzMethods(builder, parsedUnion);
             AppendMatchMethod(builder, parsedUnion);
             AppendSwitchMethod(builder, parsedUnion);
+            AppendImplicitCastOperators(builder, parsedUnion);
             builder.AppendLine($"{tab}}}");
             builder.AppendLine("}");
             var code = builder.ToString();
@@ -352,5 +353,16 @@ internal class Generator : IIncrementalGenerator
         builder.AppendLine();
         builder.AppendLine($"{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedSwitchCasesException($\"Unknown _tag = {{_tag}}\");");
         builder.AppendLine($"{tab}{tab}}}");
+    }
+
+    private static void AppendImplicitCastOperators(StringBuilder builder, ParsedUnion union)
+    {
+        builder.AppendLine();
+
+        foreach (var type in union.Types)
+        {
+            var typeString = GetTypeString(type);
+            builder.AppendLine($"{tab}{tab}public static implicit operator {union.Name}({typeString} value) => new {union.Name}(value);");
+        }
     }
 }
