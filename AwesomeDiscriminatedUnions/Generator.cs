@@ -214,7 +214,7 @@ internal class Generator : IIncrementalGenerator
             var tagName = GenerateTagName(type);
 
             builder.AppendLine();
-            builder.AppendLine($"{tab}{tab}public bool Is{typeName}()");
+            builder.AppendLine($"{tab}{tab}public readonly bool Is{typeName}()");
             builder.AppendLine($"{tab}{tab}{{");
             builder.AppendLine($"{tab}{tab}{tab}return _tag == {tagName};");
             builder.AppendLine($"{tab}{tab}}}");
@@ -224,7 +224,7 @@ internal class Generator : IIncrementalGenerator
             var fieldName = GenerateFieldName(type);
 
             builder.AppendLine();
-            builder.AppendLine($"{tab}{tab}public bool Is{typeName}(out {typeString} value)");
+            builder.AppendLine($"{tab}{tab}public readonly bool Is{typeName}(out {typeString} value)");
             builder.AppendLine($"{tab}{tab}{{");
             builder.AppendLine($"{tab}{tab}{tab}if (_tag == {tagName})");
             builder.AppendLine($"{tab}{tab}{tab}{{");
@@ -260,7 +260,7 @@ internal class Generator : IIncrementalGenerator
     {
         builder.AppendLine();
 
-        builder.Append($"{tab}{tab}public TResult Match<TResult>(");
+        builder.Append($"{tab}{tab}public readonly TResult Match<TResult>(");
         for (var i = 0; i < union.Types.Length; i++)
         {
             var type = union.Types[i];
@@ -309,7 +309,7 @@ internal class Generator : IIncrementalGenerator
     {
         builder.AppendLine();
 
-        builder.Append($"{tab}{tab}public void Switch(");
+        builder.Append($"{tab}{tab}public readonly void Switch(");
         for (var i = 0; i < union.Types.Length; i++)
         {
             var type = union.Types[i];
