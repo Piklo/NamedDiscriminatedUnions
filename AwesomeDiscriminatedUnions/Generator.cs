@@ -45,6 +45,7 @@ internal class Generator : IIncrementalGenerator
             AppendConstructors(builder, parsedUnion);
             AppendIsXyzMethods(builder, parsedUnion);
             AppendMatchMethod(builder, parsedUnion);
+            AppendSwitchMethod(builder, parsedUnion);
             builder.AppendLine($"{tab}}}");
             builder.AppendLine("}");
             var code = builder.ToString();
@@ -300,6 +301,56 @@ internal class Generator : IIncrementalGenerator
         }
         builder.AppendLine();
         builder.AppendLine($"{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedMatchCasesException($\"Unknown _tag = {{_tag}}\");");
+        builder.AppendLine($"{tab}{tab}}}");
+    }
+
+    private static void AppendSwitchMethod(StringBuilder builder, ParsedUnion union)
+    {
+        builder.AppendLine();
+
+        builder.Append($"{tab}{tab}public void Switch(");
+        for (var i = 0; i < union.Types.Length; i++)
+        {
+            var type = union.Types[i];
+            var parameter = GetTypeString(type);
+
+            var typeName = NormalizeTypeName(type);
+
+            builder.Append($"Action<{parameter}> process{typeName}");
+            if (i < union.Types.Length - 1)
+            {
+                builder.Append(", ");
+            }
+            else
+            {
+                builder.AppendLine(")");
+            }
+        }
+
+        builder.AppendLine($"{tab}{tab}{{");
+        for (var i = 0; i < union.Types.Length; i++)
+        {
+            var type = union.Types[i];
+            var tag = GenerateTagName(type);
+            var fieldName = GenerateFieldName(type);
+            var typeName = NormalizeTypeName(type);
+
+            if (i == 0)
+            {
+                builder.AppendLine($"{tab}{tab}{tab}if (_tag == {tag})");
+            }
+            else
+            {
+                builder.AppendLine($"{tab}{tab}{tab}else if (_tag == {tag})");
+            }
+
+            builder.AppendLine($"{tab}{tab}{tab}{{");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}process{typeName}({fieldName});");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}return;");
+            builder.AppendLine($"{tab}{tab}{tab}}}");
+        }
+        builder.AppendLine();
+        builder.AppendLine($"{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedSwitchCasesException($\"Unknown _tag = {{_tag}}\");");
         builder.AppendLine($"{tab}{tab}}}");
     }
 }
