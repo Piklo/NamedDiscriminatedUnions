@@ -1,5 +1,4 @@
 ﻿using AwesomeDiscriminatedUnions;
-using System;
 
 namespace AwesomeDiscriminatedUnionsExample;
 
@@ -11,9 +10,4 @@ namespace AwesomeDiscriminatedUnionsExample;
 [DiscriminatedUnionType(typeof(MyTestStruct))]
 internal readonly ref partial struct MyTestUnion
 {
-
-    public TResult Match<TResult>(Func<int, TResult> processInt)
-    {
-        return processInt(_int);
-    }
 }
