@@ -82,9 +82,16 @@ internal class Generator : IIncrementalGenerator
         parsedAttributes.Sort((x, y) => y.Priority.CompareTo(x.Priority));
         var immutable = parsedAttributes.ToImmutableArray();
         var name = context.TargetSymbol.Name;
+        var fullNamespace = GetFullNamespace(context.TargetSymbol);
 
+        var parsedUnion = new ParsedUnion(name, fullNamespace, immutable);
+        return parsedUnion;
+    }
+
+    private static string GetFullNamespace(ISymbol symbol)
+    {
         var namespaceBuilder = new StringBuilder();
-        var currentNamespace = context.TargetSymbol.ContainingNamespace;
+        var currentNamespace = symbol.ContainingNamespace;
         while (currentNamespace is not null && !string.IsNullOrWhiteSpace(currentNamespace.Name))
         {
             if (namespaceBuilder.Length != 0)
@@ -94,11 +101,10 @@ internal class Generator : IIncrementalGenerator
             namespaceBuilder.Insert(0, currentNamespace.Name);
             currentNamespace = currentNamespace.ContainingNamespace;
         }
-        var fullNamespace = namespaceBuilder.ToString();
 
-        var parsedUnion = new ParsedUnion(name, fullNamespace, immutable);
-        return parsedUnion;
+        return namespaceBuilder.ToString();
     }
+
     private static void AppendConstTags(StringBuilder builder, ParsedUnion union)
     {
         builder.AppendLine($"{tab}{tab}private const byte TagNone = 0;");
