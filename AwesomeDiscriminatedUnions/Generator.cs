@@ -71,12 +71,13 @@ internal class Generator : IIncrementalGenerator
             builder.AppendLine($"// generated on {DateTimeOffset.Now}");
             builder.AppendLine();
             builder.AppendLine("using System;");
+            builder.AppendLine("using System.Runtime.InteropServices;");
             builder.AppendLine();
             builder.AppendLine("#nullable enable");
             builder.AppendLine();
             builder.AppendLine($"namespace {parsedUnion.FullNamespace}");
             builder.AppendLine("{");
-            builder.AppendLine($"{tab}[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]");
+            builder.AppendLine($"{tab}[StructLayout(LayoutKind.Explicit)]");
             builder.AppendLine($"{tab}partial struct {parsedUnion.Name}");
             builder.AppendLine($"{tab}{{");
             AppendConstTags(builder, parsedUnion);
@@ -212,7 +213,7 @@ internal class Generator : IIncrementalGenerator
                 {
                     var typeString = GetTypeString(type);
                     builder.AppendLine();
-                    builder.AppendLine($"{tab}{tab}[System.Runtime.InteropServices.FieldOffset({offset})]");
+                    builder.AppendLine($"{tab}{tab}[FieldOffset({offset})]");
                     builder.AppendLine($"{tab}{tab}private readonly {typeString} {GenerateFieldName(type)};");
                 }
             }
@@ -221,7 +222,7 @@ internal class Generator : IIncrementalGenerator
         }
 
         builder.AppendLine();
-        builder.AppendLine($"{tab}{tab}[System.Runtime.InteropServices.FieldOffset({offset})]");
+        builder.AppendLine($"{tab}{tab}[FieldOffset({offset})]");
         builder.AppendLine($"{tab}{tab}private readonly byte _tag;");
         offset++;
 
@@ -230,7 +231,7 @@ internal class Generator : IIncrementalGenerator
             if (type.IsValueType)
             {
                 builder.AppendLine();
-                builder.AppendLine($"{tab}{tab}[System.Runtime.InteropServices.FieldOffset({offset})]");
+                builder.AppendLine($"{tab}{tab}[FieldOffset({offset})]");
                 builder.AppendLine($"{tab}{tab}private readonly {type.FullTypeName} {GenerateFieldName(type)};");
             }
         }
