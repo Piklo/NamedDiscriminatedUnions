@@ -280,6 +280,8 @@ internal class Generator : IIncrementalGenerator
         }
 
         builder.AppendLine($"{tab}{tab}{{");
+        builder.AppendLine($"{tab}{tab}{tab}switch (_tag)");
+        builder.AppendLine($"{tab}{tab}{tab}{{");
         for (var i = 0; i < union.Types.Length; i++)
         {
             var type = union.Types[i];
@@ -287,21 +289,13 @@ internal class Generator : IIncrementalGenerator
             var fieldName = GenerateFieldName(type);
             var typeName = NormalizeTypeName(type);
 
-            if (i == 0)
-            {
-                builder.AppendLine($"{tab}{tab}{tab}if (_tag == {tag})");
-            }
-            else
-            {
-                builder.AppendLine($"{tab}{tab}{tab}else if (_tag == {tag})");
-            }
-
-            builder.AppendLine($"{tab}{tab}{tab}{{");
-            builder.AppendLine($"{tab}{tab}{tab}{tab}return process{typeName}({fieldName});");
-            builder.AppendLine($"{tab}{tab}{tab}}}");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}case {tag}:");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return process{typeName}({fieldName});");
         }
-        builder.AppendLine();
-        builder.AppendLine($"{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedMatchCasesException($\"Unknown _tag = {{_tag}}\");");
+
+        builder.AppendLine($"{tab}{tab}{tab}{tab}default:");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedMatchCasesException($\"Unknown _tag = {{_tag}}\");");
+        builder.AppendLine($"{tab}{tab}{tab}}}");
         builder.AppendLine($"{tab}{tab}}}");
     }
 
@@ -329,6 +323,8 @@ internal class Generator : IIncrementalGenerator
         }
 
         builder.AppendLine($"{tab}{tab}{{");
+        builder.AppendLine($"{tab}{tab}{tab}switch (_tag)");
+        builder.AppendLine($"{tab}{tab}{tab}{{");
         for (var i = 0; i < union.Types.Length; i++)
         {
             var type = union.Types[i];
@@ -336,22 +332,13 @@ internal class Generator : IIncrementalGenerator
             var fieldName = GenerateFieldName(type);
             var typeName = NormalizeTypeName(type);
 
-            if (i == 0)
-            {
-                builder.AppendLine($"{tab}{tab}{tab}if (_tag == {tag})");
-            }
-            else
-            {
-                builder.AppendLine($"{tab}{tab}{tab}else if (_tag == {tag})");
-            }
-
-            builder.AppendLine($"{tab}{tab}{tab}{{");
-            builder.AppendLine($"{tab}{tab}{tab}{tab}process{typeName}({fieldName});");
-            builder.AppendLine($"{tab}{tab}{tab}{tab}return;");
-            builder.AppendLine($"{tab}{tab}{tab}}}");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}case {tag}:");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}process{typeName}({fieldName});");
+            builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return;");
         }
-        builder.AppendLine();
-        builder.AppendLine($"{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedSwitchCasesException($\"Unknown _tag = {{_tag}}\");");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}default:");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}throw new AwesomeDiscriminatedUnions.ExhaustedSwitchCasesException($\"Unknown _tag = {{_tag}}\");");
+        builder.AppendLine($"{tab}{tab}{tab}}}");
         builder.AppendLine($"{tab}{tab}}}");
     }
 
