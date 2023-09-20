@@ -8,6 +8,7 @@ namespace AwesomeDiscriminatedUnionsExample;
 [DiscriminatedUnionType(typeof(string))]
 [DiscriminatedUnionType(typeof(MyTestClass))]
 [DiscriminatedUnionType(typeof(MyTestStruct))]
-internal readonly ref partial struct MyTestUnion
+[DiscriminatedUnionGetHashCode(DiscriminatedUnionGetHashCodeType.Strict)]
+internal partial struct MyTestUnion
 {
 }
