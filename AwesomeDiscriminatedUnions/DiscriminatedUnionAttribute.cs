@@ -3,13 +3,15 @@
 namespace AwesomeDiscriminatedUnions;
 
 [AttributeUsage(AttributeTargets.Struct)]
-public sealed class DiscriminatedUnionGetHashCodeAttribute : Attribute
+public sealed class DiscriminatedUnionAttribute : Attribute
 {
-    private readonly DiscriminatedUnionGetHashCodeType _type;
+#pragma warning disable IDE0052 // Remove unread private members
+    private readonly DiscriminatedUnionGetHashCodeType _getHashCodeType;
+#pragma warning restore IDE0052 // Remove unread private members
 
-    public DiscriminatedUnionGetHashCodeAttribute(DiscriminatedUnionGetHashCodeType type)
+    public DiscriminatedUnionAttribute(DiscriminatedUnionGetHashCodeType getHashCodeType = DiscriminatedUnionGetHashCodeType.Strict)
     {
-        _type = type;
+        _getHashCodeType = getHashCodeType;
     }
 }
 

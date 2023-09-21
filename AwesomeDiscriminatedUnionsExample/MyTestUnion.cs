@@ -8,7 +8,6 @@ namespace AwesomeDiscriminatedUnionsExample;
 [DiscriminatedUnionType(typeof(string))]
 [DiscriminatedUnionType(typeof(MyTestClass))]
 [DiscriminatedUnionType(typeof(MyTestStruct))]
-[DiscriminatedUnionGetHashCode(DiscriminatedUnionGetHashCodeType.Strict)]
 internal partial struct MyTestUnion
 {
 }

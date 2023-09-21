@@ -15,7 +15,7 @@ internal readonly record struct ParsedUnion(string Name, string FullNamespace, I
 internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, int Priority, bool ShouldBox);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
-internal readonly record struct MergedAttributesData(ParsedUnion ParsedUnion, DiscriminatedUnionGetHashCodeType GetHashCodeType);
+internal readonly record struct MergedAttributesData(ParsedUnion ParsedUnion, DiscriminatedUnionGetHashCodeType GetHashCodeType = DiscriminatedUnionGetHashCodeType.Strict);
 
 [Generator]
 internal class Generator : IIncrementalGenerator
@@ -24,8 +24,8 @@ internal class Generator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var duGetHashCode =
-            context.SyntaxProvider.ForAttributeWithMetadataName("AwesomeDiscriminatedUnions.DiscriminatedUnionGetHashCodeAttribute", Predicate, TransformGetHashCodes)
+        var duAttribute =
+            context.SyntaxProvider.ForAttributeWithMetadataName("AwesomeDiscriminatedUnions.DiscriminatedUnionAttribute", Predicate, TransformGetHashCodes)
             .Collect()
             .Select(static (codes, ct) =>
             {
@@ -41,7 +41,7 @@ internal class Generator : IIncrementalGenerator
             context.SyntaxProvider.ForAttributeWithMetadataName("AwesomeDiscriminatedUnions.DiscriminatedUnionTypeAttribute", Predicate, TransformTypes)
             .Collect();
 
-        var mergedAttributes = duTypes.Combine(duGetHashCode).SelectMany(static (item, ct) =>
+        var mergedAttributes = duTypes.Combine(duAttribute).SelectMany(static (item, ct) =>
         {
             var unions = item.Left;
             var dict = item.Right;
@@ -51,12 +51,14 @@ internal class Generator : IIncrementalGenerator
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (!dict.TryGetValue((union.Name, union.FullNamespace), out var type))
+                if (dict.TryGetValue((union.Name, union.FullNamespace), out var type))
                 {
-                    type = DiscriminatedUnionGetHashCodeType.None;
+                    list.Add(new MergedAttributesData(union, type));
                 }
-
-                list.Add(new MergedAttributesData(union, type));
+                else
+                {
+                    list.Add(new MergedAttributesData(union));
+                }
             }
 
             return list;
