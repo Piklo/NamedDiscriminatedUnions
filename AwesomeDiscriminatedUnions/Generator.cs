@@ -8,14 +8,14 @@ using System.Threading;
 
 namespace AwesomeDiscriminatedUnions;
 
-internal readonly record struct GetHashCodeData(string UnionName, string FullNamespace, DiscriminatedUnionGetHashCodeType Type);
+internal readonly record struct GetHashCodeData(string UnionName, string FullNamespace, GetHashCodeType Type);
 
 internal readonly record struct ParsedUnion(string Name, string FullNamespace, ImmutableArray<ParsedType> Types);
 
 internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, int Priority, bool ShouldBox);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
-internal readonly record struct MergedAttributesData(ParsedUnion ParsedUnion, DiscriminatedUnionGetHashCodeType GetHashCodeType = DiscriminatedUnionGetHashCodeType.Strict);
+internal readonly record struct MergedAttributesData(ParsedUnion ParsedUnion, GetHashCodeType GetHashCodeType = GetHashCodeType.Strict);
 
 [Generator]
 internal class Generator : IIncrementalGenerator
@@ -29,7 +29,7 @@ internal class Generator : IIncrementalGenerator
             .Collect()
             .Select(static (codes, ct) =>
             {
-                var dict = new Dictionary<(string unionName, string fullNamespace), DiscriminatedUnionGetHashCodeType>(codes.Length);
+                var dict = new Dictionary<(string unionName, string fullNamespace), GetHashCodeType>(codes.Length);
                 foreach (var item in codes)
                 {
                     dict.Add((item.UnionName, item.FullNamespace), item.Type);
@@ -112,16 +112,16 @@ internal class Generator : IIncrementalGenerator
 
         if (context.Attributes.Length != 1)
         {
-            return new GetHashCodeData(name, fullNamespace, DiscriminatedUnionGetHashCodeType.None);
+            return new GetHashCodeData(name, fullNamespace, GetHashCodeType.None);
         }
 
         var type = context.Attributes[0].ConstructorArguments[0];
-        if (!Enum.IsDefined(typeof(DiscriminatedUnionGetHashCodeType), type.Value))
+        if (!Enum.IsDefined(typeof(GetHashCodeType), type.Value))
         {
-            return new GetHashCodeData(name, fullNamespace, DiscriminatedUnionGetHashCodeType.None);
+            return new GetHashCodeData(name, fullNamespace, GetHashCodeType.None);
         }
 
-        var value = (DiscriminatedUnionGetHashCodeType)type.Value;
+        var value = (GetHashCodeType)type.Value;
 
         return new GetHashCodeData(name, fullNamespace, value);
     }
@@ -427,9 +427,9 @@ internal class Generator : IIncrementalGenerator
         }
     }
 
-    private static void AppendGetHashCodeMethod(StringBuilder builder, ParsedUnion union, DiscriminatedUnionGetHashCodeType getHashCodeType)
+    private static void AppendGetHashCodeMethod(StringBuilder builder, ParsedUnion union, GetHashCodeType getHashCodeType)
     {
-        if (getHashCodeType == DiscriminatedUnionGetHashCodeType.None)
+        if (getHashCodeType == GetHashCodeType.None)
         {
             return;
         }
@@ -447,7 +447,7 @@ internal class Generator : IIncrementalGenerator
             var tag = GenerateTagName(type);
             var fieldName = GenerateFieldName(type);
             builder.AppendLine($"{tab}{tab}{tab}{tab}case {tag}:");
-            if (getHashCodeType == DiscriminatedUnionGetHashCodeType.Strict)
+            if (getHashCodeType == GetHashCodeType.Strict)
             {
                 if (type.IsValueType)
                 {
@@ -458,7 +458,7 @@ internal class Generator : IIncrementalGenerator
                     builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return {fieldName} is not null ? HashCode.Combine(_tag, {fieldName}) : 0;");
                 }
             }
-            else if (getHashCodeType == DiscriminatedUnionGetHashCodeType.Weak)
+            else if (getHashCodeType == GetHashCodeType.Weak)
             {
                 if (type.IsValueType)
                 {

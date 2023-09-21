@@ -1,6 +1,6 @@
 ﻿namespace AwesomeDiscriminatedUnions;
 
-public enum DiscriminatedUnionGetHashCodeType
+public enum GetHashCodeType
 {
     /// <summary>
     /// Do not generate GetHashCode method

@@ -6,10 +6,10 @@ namespace AwesomeDiscriminatedUnions;
 public sealed class DiscriminatedUnionAttribute : Attribute
 {
 #pragma warning disable IDE0052 // Remove unread private members
-    private readonly DiscriminatedUnionGetHashCodeType _getHashCodeType;
+    private readonly GetHashCodeType _getHashCodeType;
 #pragma warning restore IDE0052 // Remove unread private members
 
-    public DiscriminatedUnionAttribute(DiscriminatedUnionGetHashCodeType getHashCodeType = DiscriminatedUnionGetHashCodeType.Strict)
+    public DiscriminatedUnionAttribute(GetHashCodeType getHashCodeType = GetHashCodeType.Strict)
     {
         _getHashCodeType = getHashCodeType;
     }
