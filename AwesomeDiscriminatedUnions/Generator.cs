@@ -13,7 +13,7 @@ internal readonly record struct DiscriminatedUnionAttributeParameters(EqualsType
 internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, bool ShouldBox);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
-internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, ImmutableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters);
+internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, ImmutableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters, bool IsRefStruct);
 
 [Generator]
 internal class Generator : IIncrementalGenerator
@@ -43,7 +43,10 @@ internal class Generator : IIncrementalGenerator
             builder.AppendLine($"namespace {data.FullNamespace}");
             builder.AppendLine("{");
             builder.AppendLine($"{tab}[StructLayout(LayoutKind.Explicit)]");
-            builder.AppendLine($"{tab}partial struct {data.Name}");
+
+            var shouldAddIEquatable = !data.IsRefStruct && data.Parameters.EqualsType.HasFlag(EqualsType.IEquatable);
+            builder.AppendLine($"{tab}partial struct {data.Name}{(shouldAddIEquatable ? $" : IEquatable<{data.Name}>" : "")}");
+
             builder.AppendLine($"{tab}{{");
             AppendConstTags(builder, data.Types);
             AppendFields(builder, data.Types);
@@ -53,6 +56,9 @@ internal class Generator : IIncrementalGenerator
             AppendSwitchMethod(builder, data.Types);
             AppendImplicitCastOperators(builder, data);
             AppendGetHashCodeMethod(builder, data);
+            AppendOverrideEqualsMethods(builder, data);
+            AppendEqualsStrictMethod(builder, data);
+            AppendEqualsOperator(builder, data);
             builder.AppendLine($"{tab}}}");
             builder.AppendLine("}");
             var code = builder.ToString();
@@ -69,8 +75,9 @@ internal class Generator : IIncrementalGenerator
 
         var name = context.TargetSymbol.Name;
         var fullNamespace = GetFullNamespace(context.TargetSymbol);
+        var isRefStruct = ((ITypeSymbol)context.TargetSymbol).IsRefLikeType;
 
-        var data = new DiscriminatedUnionData(name, fullNamespace, types, parameters);
+        var data = new DiscriminatedUnionData(name, fullNamespace, types, parameters, isRefStruct);
 
         return data;
     }
@@ -79,11 +86,8 @@ internal class Generator : IIncrementalGenerator
     {
         var duAttributeArguments = context.Attributes[0].ConstructorArguments;
 
-        var equalsTypeAttribute = duAttributeArguments[0].Value;
-        var equalsType = Enum.IsDefined(typeof(EqualsType), equalsTypeAttribute) ? (EqualsType)equalsTypeAttribute : throw new InvalidCastException($"invalid enum value of {equalsTypeAttribute} of type {nameof(EqualsType)}");
-
-        var getHashCodeTypeAttribute = duAttributeArguments[1].Value;
-        var getHashCodeType = Enum.IsDefined(typeof(GetHashCodeType), getHashCodeTypeAttribute) ? (GetHashCodeType)getHashCodeTypeAttribute : throw new InvalidCastException($"invalid enum value of {equalsTypeAttribute} of type {nameof(EqualsType)}");
+        var equalsType = (EqualsType)duAttributeArguments[0].Value;
+        var getHashCodeType = (GetHashCodeType)duAttributeArguments[1].Value;
 
         var parameters = new DiscriminatedUnionAttributeParameters(equalsType, getHashCodeType);
 
@@ -441,5 +445,92 @@ internal class Generator : IIncrementalGenerator
 
         builder.AppendLine($"{tab}{tab}{tab}}}");
         builder.AppendLine($"{tab}{tab}}}");
+    }
+
+    private static void AppendOverrideEqualsMethods(StringBuilder builder, DiscriminatedUnionData data)
+    {
+        if (!data.Parameters.EqualsType.HasFlag(EqualsType.OverrideEquals))
+        {
+            return;
+        }
+
+        builder.AppendLine($$"""
+
+                    public override readonly bool Equals([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] object? obj)
+                    {
+                        if (obj is not {{data.Name}} temp)
+                        {
+                            return false;
+                        }
+
+                        return Equals(temp);
+                    }
+            """);
+    }
+
+    private static void AppendEqualsStrictMethod(StringBuilder builder, DiscriminatedUnionData data)
+    {
+        if (!data.Parameters.EqualsType.HasFlag(EqualsType.EqualsStrict))
+        {
+            return;
+        }
+
+        builder.AppendLine();
+        builder.AppendLine($"{tab}{tab}public readonly bool Equals({data.Name} other)");
+        builder.AppendLine($"{tab}{tab}{{");
+        builder.AppendLine($"{tab}{tab}{tab}if (_tag != other._tag)");
+        builder.AppendLine($"{tab}{tab}{tab}{{");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}return false;");
+        builder.AppendLine($"{tab}{tab}{tab}}}");
+        builder.AppendLine();
+        builder.AppendLine($"{tab}{tab}{tab}switch (_tag)");
+        builder.AppendLine($"{tab}{tab}{tab}{{");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}case TagNone:");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return true;");
+
+        foreach (var type in data.Types)
+        {
+            var tag = GenerateTagName(type);
+            var fieldName = GenerateFieldName(type);
+            if (type.IsValueType)
+            {
+                builder.AppendLine($"{tab}{tab}{tab}{tab}case {tag}:");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return {fieldName}.Equals(other.{fieldName});");
+            }
+            else
+            {
+                builder.AppendLine($"{tab}{tab}{tab}{tab}case {tag}:");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}if ({fieldName} == other.{fieldName})");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}{{");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}{tab}return true;");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}}}");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}if ({fieldName} is null || other.{fieldName} is null)");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}{{");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}{tab}return false;");
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}}}");
+                builder.AppendLine();
+                builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return {fieldName}.Equals(other.{fieldName});");
+            }
+        }
+
+        builder.AppendLine($"{tab}{tab}{tab}{tab}default:");
+        builder.AppendLine($"{tab}{tab}{tab}{tab}{tab}return false;");
+        builder.AppendLine($"{tab}{tab}{tab}}}");
+        builder.AppendLine($"{tab}{tab}}}");
+    }
+
+    private static void AppendEqualsOperator(StringBuilder builder, DiscriminatedUnionData data)
+    {
+        if (!data.Parameters.EqualsType.HasFlag(EqualsType.EqualsOperator))
+        {
+            return;
+        }
+
+        builder.AppendLine($$"""
+
+                    public static bool operator ==({{data.Name}} left, {{data.Name}} right) => left.Equals(right);
+
+                    public static bool operator !=({{data.Name}} left, {{data.Name}} right) => !(left == right);
+            """);
     }
 }

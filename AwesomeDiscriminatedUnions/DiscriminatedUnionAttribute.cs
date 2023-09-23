@@ -5,7 +5,7 @@ namespace AwesomeDiscriminatedUnions;
 [AttributeUsage(AttributeTargets.Struct)]
 public sealed class DiscriminatedUnionAttribute : Attribute
 {
-    public const EqualsType DefaultEqualsType = EqualsType.Strict;
+    public const EqualsType DefaultEqualsType = EqualsType.OverrideEquals | EqualsType.EqualsStrict | EqualsType.IEquatable | EqualsType.EqualsOperator;
     public const GetHashCodeType DefaultGetHashCodeType = GetHashCodeType.Strict;
 #pragma warning disable IDE0052 // Remove unread private members
     private readonly EqualsType _equalsType;
