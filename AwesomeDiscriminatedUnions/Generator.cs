@@ -10,7 +10,7 @@ namespace AwesomeDiscriminatedUnions;
 
 internal readonly record struct DiscriminatedUnionAttributeParameters(EqualsType EqualsType, GetHashCodeType GetHashCodeType);
 
-internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, int Priority, bool ShouldBox);
+internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, bool ShouldBox);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
 internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, ImmutableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters);
@@ -110,14 +110,11 @@ internal class Generator : IIncrementalGenerator
             var typeName = dotIndex != -1 ? fullTypeString.Substring(dotIndex + 1) : fullTypeString;
             var isValueType = typeArgument.IsValueType;
             var customName = (string)arguments[1].Value;
-            var priority = (int)arguments[2].Value;
-            var shouldBox = (bool)arguments[3].Value;
+            var shouldBox = (bool)arguments[2].Value;
 
-            var parsed = new ParsedType(fullTypeString, typeName, isValueType, customName, priority, shouldBox);
+            var parsed = new ParsedType(fullTypeString, typeName, isValueType, customName, shouldBox);
             parsedAttributes.Add(parsed);
         }
-
-        parsedAttributes.Sort((x, y) => y.Priority.CompareTo(x.Priority));
 
         var immutable = parsedAttributes.ToImmutableArray();
 
@@ -148,7 +145,7 @@ internal class Generator : IIncrementalGenerator
         var tag = 1;
         foreach (var item in types)
         {
-            builder.AppendLine($"{tab}{tab}private const byte {GenerateTagName(item)} = {tag}; // priority = {item.Priority}");
+            builder.AppendLine($"{tab}{tab}private const byte {GenerateTagName(item)} = {tag};");
             tag++;
         }
     }
