@@ -2,6 +2,7 @@
 
 namespace AwesomeDiscriminatedUnionsExample;
 
+[DiscriminatedUnion()]
 [DiscriminatedUnionType(typeof(int))]
 [DiscriminatedUnionType(typeof(long))]
 [DiscriminatedUnionType(typeof(double))]
