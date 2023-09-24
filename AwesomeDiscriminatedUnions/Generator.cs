@@ -226,7 +226,6 @@ internal class Generator : IIncrementalGenerator
             builder.AppendLine($"{tab}{tab}public {data.Name}({typeString} value)");
             builder.AppendLine($"{tab}{tab}{{");
 
-            // probably should use Unsafe.SkipInit(out);
             if (data.Types.Length > 1)
             {
                 foreach (var otherType in data.Types)
@@ -236,7 +235,7 @@ internal class Generator : IIncrementalGenerator
                         continue;
                     }
 
-                    builder.AppendLine($"{tab}{tab}{tab}{GenerateFieldName(otherType)} = default;");
+                    builder.AppendLine($"{tab}{tab}{tab}System.Runtime.CompilerServices.Unsafe.SkipInit(out {GenerateFieldName(otherType)});");
                 }
 
                 builder.AppendLine();
