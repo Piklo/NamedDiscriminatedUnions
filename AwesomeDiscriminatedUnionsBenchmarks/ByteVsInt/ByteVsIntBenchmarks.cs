@@ -1,12 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Perfolizer.Mathematics.OutlierDetection;
 
 namespace AwesomeDiscriminatedUnionsBenchmarks.ByteVsInt;
 
-[MemoryDiagnoser]
-//[MaxRelativeError(0.001)]
-[AllStatisticsColumn]
-[Outliers(OutlierMode.RemoveAll)]
 public class ByteVsIntBenchmarks
 {
     [Benchmark]
@@ -23,6 +18,7 @@ public class ByteVsIntBenchmarks
         return obj;
     }
 }
+
 public readonly struct ByteTag
 {
     private readonly byte _tag;

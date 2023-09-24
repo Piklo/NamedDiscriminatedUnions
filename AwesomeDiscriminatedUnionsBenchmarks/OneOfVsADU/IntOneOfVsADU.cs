@@ -1,7 +1,6 @@
 ﻿using AwesomeDiscriminatedUnions;
 using BenchmarkDotNet.Attributes;
 using OneOf;
-using Perfolizer.Mathematics.OutlierDetection;
 
 namespace AwesomeDiscriminatedUnionsBenchmarks.OneOfVsADU;
 
@@ -11,11 +10,7 @@ public readonly partial struct JustIntUnion
 {
 }
 
-[MemoryDiagnoser]
-//[MaxRelativeError(0.001)]
-[AllStatisticsColumn]
-[Outliers(OutlierMode.RemoveAll)]
-public class JustIntOneOfVsADU
+public class IntOneOfVsADU
 {
     [Benchmark]
     public OneOf<int> OneOf()
@@ -23,12 +18,14 @@ public class JustIntOneOfVsADU
         OneOf<int> obj = int.MaxValue;
         return obj;
     }
+
     [Benchmark]
     public JustIntUnion ADU()
     {
         JustIntUnion obj = int.MaxValue;
         return obj;
     }
+
     [Benchmark]
     public object OneOfBoxed()
     {
@@ -36,6 +33,7 @@ public class JustIntOneOfVsADU
         object boxed = obj;
         return boxed;
     }
+
     [Benchmark]
     public object ADUBoxed()
     {
