@@ -1,5 +1,6 @@
 ﻿namespace AwesomeDiscriminatedUnions.Tests;
-public class JustIntTests
+
+public sealed class JustIntTests
 {
     [Fact]
     public void Test()
