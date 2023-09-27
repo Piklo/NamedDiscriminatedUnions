@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnionsExample", "AwesomeDiscriminatedUnionsExample\AwesomeDiscriminatedUnionsExample.csproj", "{79FA301C-F198-4012-9D3D-4034BFD24BAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwesomeDiscriminatedUnionsBenchmarks", "AwesomeDiscriminatedUnionsBenchmarks\AwesomeDiscriminatedUnionsBenchmarks.csproj", "{45F72789-3345-4A4E-95FD-C63E16C1BF39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnionsBenchmarks", "AwesomeDiscriminatedUnionsBenchmarks\AwesomeDiscriminatedUnionsBenchmarks.csproj", "{45F72789-3345-4A4E-95FD-C63E16C1BF39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwesomeDiscriminatedUnions.Tests", "AwesomeDiscriminatedUnions.Tests\AwesomeDiscriminatedUnions.Tests.csproj", "{12634EDD-F531-4E65-9395-FF343CE2410F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12634EDD-F531-4E65-9395-FF343CE2410F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12634EDD-F531-4E65-9395-FF343CE2410F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12634EDD-F531-4E65-9395-FF343CE2410F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12634EDD-F531-4E65-9395-FF343CE2410F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
