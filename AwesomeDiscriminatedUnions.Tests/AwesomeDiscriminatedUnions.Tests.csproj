@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AwesomeDiscriminatedUnions\AwesomeDiscriminatedUnions.csproj" />
+    <ProjectReference Include="..\AwesomeDiscriminatedUnions\AwesomeDiscriminatedUnions.csproj" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>
