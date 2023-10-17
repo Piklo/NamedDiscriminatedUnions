@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -15,7 +14,7 @@ internal readonly record struct DiscriminatedUnionAttributeParameters(EqualsType
 internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, bool ShouldBox);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
-internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, ImmutableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters, bool IsRefStruct);
+internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters, bool IsRefStruct);
 
 [Generator]
 internal class Generator : IIncrementalGenerator
@@ -99,7 +98,7 @@ internal class Generator : IIncrementalGenerator
         return parameters;
     }
 
-    private static ImmutableArray<ParsedType> GetDiscriminatedUnionTypes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+    private static EquatableArray<ParsedType> GetDiscriminatedUnionTypes(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         var parsedAttributes = new List<ParsedType>();
         var attributes = context.TargetSymbol.GetAttributes();
@@ -125,9 +124,9 @@ internal class Generator : IIncrementalGenerator
             parsedAttributes.Add(parsed);
         }
 
-        var immutable = parsedAttributes.ToImmutableArray();
+        var equatable = parsedAttributes.ToEquatableArray();
 
-        return immutable;
+        return equatable;
     }
 
     private static string GetFullNamespace(ISymbol symbol)
@@ -147,7 +146,7 @@ internal class Generator : IIncrementalGenerator
         return namespaceBuilder.ToString();
     }
 
-    private static void AppendConstTags(IndentedTextWriter writer, ImmutableArray<ParsedType> types)
+    private static void AppendConstTags(IndentedTextWriter writer, EquatableArray<ParsedType> types)
     {
         writer.WriteLine("private const byte TagNone = 0;");
 
@@ -166,7 +165,7 @@ internal class Generator : IIncrementalGenerator
         return $"Tag{str}";
     }
 
-    private static void AppendFields(IndentedTextWriter writer, ImmutableArray<ParsedType> types)
+    private static void AppendFields(IndentedTextWriter writer, EquatableArray<ParsedType> types)
     {
         if (types.Length == 0)
         {
@@ -254,7 +253,7 @@ internal class Generator : IIncrementalGenerator
         }
     }
 
-    private static void AppendIsXyzMethods(IndentedTextWriter writer, ImmutableArray<ParsedType> types)
+    private static void AppendIsXyzMethods(IndentedTextWriter writer, EquatableArray<ParsedType> types)
     {
         foreach (var type in types)
         {
@@ -311,7 +310,7 @@ internal class Generator : IIncrementalGenerator
         return typeName;
     }
 
-    private static void AppendMatchMethod(IndentedTextWriter writer, ImmutableArray<ParsedType> types)
+    private static void AppendMatchMethod(IndentedTextWriter writer, EquatableArray<ParsedType> types)
     {
         writer.WriteLineNoTabs();
 
@@ -363,7 +362,7 @@ internal class Generator : IIncrementalGenerator
     }
 
     // merge me with AppendMatchMethod?
-    private static void AppendSwitchMethod(IndentedTextWriter writer, ImmutableArray<ParsedType> types)
+    private static void AppendSwitchMethod(IndentedTextWriter writer, EquatableArray<ParsedType> types)
     {
         writer.WriteLineNoTabs();
 
