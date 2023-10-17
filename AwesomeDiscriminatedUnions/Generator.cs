@@ -11,7 +11,7 @@ namespace AwesomeDiscriminatedUnions;
 
 internal readonly record struct DiscriminatedUnionAttributeParameters(EqualsType EqualsType, GetHashCodeType GetHashCodeType);
 
-internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName, bool ShouldBox);
+internal readonly record struct ParsedType(string FullTypeName, string TypeName, bool IsValueType, string CustomName);
 
 // remove the readonly if you ever add more attributes and just update the existing record with whatever changed in subsequent transforms
 internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<ParsedType> Types, DiscriminatedUnionAttributeParameters Parameters, bool IsRefStruct);
@@ -118,9 +118,8 @@ internal class Generator : IIncrementalGenerator
             var typeName = dotIndex != -1 ? fullTypeString.Substring(dotIndex + 1) : fullTypeString;
             var isValueType = typeArgument.IsValueType;
             var customName = (string)arguments[1].Value;
-            var shouldBox = (bool)arguments[2].Value;
 
-            var parsed = new ParsedType(fullTypeString, typeName, isValueType, customName, shouldBox);
+            var parsed = new ParsedType(fullTypeString, typeName, isValueType, customName);
             parsedAttributes.Add(parsed);
         }
 
