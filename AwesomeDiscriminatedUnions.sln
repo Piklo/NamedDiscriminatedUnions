@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions", "AwesomeDiscriminatedUnions\AwesomeDiscriminatedUnions.csproj", "{ECE1A09C-C34C-4C20-8B78-7583866EA9CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions.Generator", "AwesomeDiscriminatedUnions.Generator\AwesomeDiscriminatedUnions.Generator.csproj", "{ECE1A09C-C34C-4C20-8B78-7583866EA9CB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnionsExample", "AwesomeDiscriminatedUnionsExample\AwesomeDiscriminatedUnionsExample.csproj", "{79FA301C-F198-4012-9D3D-4034BFD24BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions.Example", "AwesomeDiscriminatedUnions.Example\AwesomeDiscriminatedUnions.Example.csproj", "{79FA301C-F198-4012-9D3D-4034BFD24BAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnionsBenchmarks", "AwesomeDiscriminatedUnionsBenchmarks\AwesomeDiscriminatedUnionsBenchmarks.csproj", "{45F72789-3345-4A4E-95FD-C63E16C1BF39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions.Generator.Tests", "AwesomeDiscriminatedUnions.Generator.Tests\AwesomeDiscriminatedUnions.Generator.Tests.csproj", "{12634EDD-F531-4E65-9395-FF343CE2410F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwesomeDiscriminatedUnions.Tests", "AwesomeDiscriminatedUnions.Tests\AwesomeDiscriminatedUnions.Tests.csproj", "{12634EDD-F531-4E65-9395-FF343CE2410F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwesomeDiscriminatedUnions.Extensions", "AwesomeDiscriminatedUnions.Extensions\AwesomeDiscriminatedUnions.Extensions.csproj", "{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +25,14 @@ Global
 		{79FA301C-F198-4012-9D3D-4034BFD24BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79FA301C-F198-4012-9D3D-4034BFD24BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79FA301C-F198-4012-9D3D-4034BFD24BAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{45F72789-3345-4A4E-95FD-C63E16C1BF39}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12634EDD-F531-4E65-9395-FF343CE2410F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12634EDD-F531-4E65-9395-FF343CE2410F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12634EDD-F531-4E65-9395-FF343CE2410F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12634EDD-F531-4E65-9395-FF343CE2410F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

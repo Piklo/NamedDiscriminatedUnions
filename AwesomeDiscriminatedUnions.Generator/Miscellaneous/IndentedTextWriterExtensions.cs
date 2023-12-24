@@ -1,6 +1,7 @@
 ﻿using System.CodeDom.Compiler;
 
-namespace AwesomeDiscriminatedUnions;
+namespace AwesomeDiscriminatedUnions.Generator.Miscellaneous;
+
 internal static class IndentedTextWriterExtensions
 {
     public static void WriteLineNoTabs(this IndentedTextWriter writer)

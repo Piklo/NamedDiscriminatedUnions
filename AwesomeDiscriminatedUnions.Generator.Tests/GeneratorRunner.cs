@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace AwesomeDiscriminatedUnions.Tests;
+namespace AwesomeDiscriminatedUnions.Generator.Tests;
 
 internal static class GeneratorRunner
 {

@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnionsExample;
+﻿namespace AwesomeDiscriminatedUnions.Example;
 
 internal struct MyTestStruct
 {
