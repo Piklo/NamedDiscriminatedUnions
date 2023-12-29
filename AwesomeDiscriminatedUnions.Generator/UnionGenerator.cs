@@ -276,7 +276,7 @@ internal class UnionGenerator : IIncrementalGenerator
 
     private static string GetNullableQuestionMarkIfNecessary(ParsedType type)
     {
-        if (type.IsValueType && !type.FullTypeName.EndsWith("?"))
+        if (!type.IsValueType && !type.FullTypeName.EndsWith("?"))
         {
             return "?";
         }
