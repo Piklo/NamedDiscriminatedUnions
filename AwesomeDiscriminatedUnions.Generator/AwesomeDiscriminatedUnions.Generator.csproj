@@ -6,6 +6,7 @@
     <LangVersion>latest</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <AnalysisMode>All</AnalysisMode>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

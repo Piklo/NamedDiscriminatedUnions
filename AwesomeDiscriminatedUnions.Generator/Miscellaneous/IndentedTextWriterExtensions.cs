@@ -1,11 +1,19 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 
 namespace AwesomeDiscriminatedUnions.Generator.Miscellaneous;
 
 internal static class IndentedTextWriterExtensions
 {
-    public static void WriteLineNoTabs(this IndentedTextWriter writer)
+    public static void WriteEmptyLine(this IndentedTextWriter writer)
     {
         writer.WriteLineNoTabs(string.Empty);
+    }
+
+    public static void WriteIndentedBlock(this IndentedTextWriter writer, Action<IndentedTextWriter> action)
+    {
+        writer.Indent++;
+        action.Invoke(writer);
+        writer.Indent--;
     }
 }

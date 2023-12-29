@@ -7,13 +7,13 @@ namespace AwesomeDiscriminatedUnions.Example;
 internal readonly partial struct MyTestUnion<T>
     where T : struct
 {
-    private readonly HashSet<int> _HashSetInt;
-    private readonly HashSet<T> _HashSetT;
-    private readonly T _MyT;
-    private readonly int _int;
-    private readonly long _long;
-    private readonly double _double;
-    private readonly string _string;
-    private readonly MyTestClass? _MyTestClass;
-    private readonly MyTestStruct _MyTestStruct;
+    private readonly HashSet<int> hashSetInt;
+    private readonly HashSet<T> hashSetT;
+    private readonly T myT;
+    private readonly int myInt;
+    private readonly long myLong;
+    private readonly double myDouble;
+    private readonly string someString;
+    private readonly MyTestClass? myTestClass;
+    private readonly MyTestStruct myTestStruct;
 }
