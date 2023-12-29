@@ -152,9 +152,9 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteIndentedBlock((writer) =>
         {
             AppendTags(writer, data);
-            writer.WriteLine();
             AppendFields(writer, data);
             AppendConstructor(writer, data);
+            AppendIsTypeMethods(writer, data);
         });
         writer.WriteLine("}");
 
@@ -185,6 +185,7 @@ internal class UnionGenerator : IIncrementalGenerator
             }
         });
         writer.WriteLine("}");
+        writer.WriteLine();
     }
 
     private static string GetTagName(ParsedType type)
@@ -226,5 +227,60 @@ internal class UnionGenerator : IIncrementalGenerator
         });
         writer.WriteLine("}");
         writer.WriteLine();
+    }
+
+    private static void AppendIsTypeMethods(IndentedTextWriter writer, DiscriminatedUnionData data)
+    {
+        foreach (var type in data.Types.Array)
+        {
+            AppendIsTypeMethodWithoutOut(writer, type);
+            AppendIsTypeMethodWithOut(writer, type);
+        }
+    }
+
+    private static void AppendIsTypeMethodWithoutOut(IndentedTextWriter writer, ParsedType type)
+    {
+        var tagName = GetTagName(type);
+        writer.WriteLine($"public readonly bool Is{tagName}()");
+        writer.WriteLine('{');
+        writer.WriteIndentedBlock((writer) =>
+        {
+            writer.WriteLine($"return tag == Tag.{tagName};");
+        });
+        writer.WriteLine('}');
+        writer.WriteLine();
+    }
+
+    private static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, ParsedType type)
+    {
+        var tagName = GetTagName(type);
+        writer.WriteLine($"public readonly bool Is{tagName}(out {type.FullTypeName}{GetNullableQuestionMarkIfNecessary(type)} value)");
+        writer.WriteLine('{');
+        writer.WriteIndentedBlock((writer) =>
+        {
+            writer.WriteLine($"if (tag == Tag.{tagName})");
+            writer.WriteLine('{');
+            writer.WriteIndentedBlock(writer =>
+            {
+                writer.WriteLine($"value = {type.FieldName};");
+                writer.WriteLine("return true;");
+            });
+            writer.WriteLine('}');
+            writer.WriteLine();
+            writer.WriteLine("value = default;");
+            writer.WriteLine("return false;");
+        });
+        writer.WriteLine('}');
+        writer.WriteLine();
+    }
+
+    private static string GetNullableQuestionMarkIfNecessary(ParsedType type)
+    {
+        if (type.IsValueType && !type.FullTypeName.EndsWith("?"))
+        {
+            return "?";
+        }
+
+        return string.Empty;
     }
 }
