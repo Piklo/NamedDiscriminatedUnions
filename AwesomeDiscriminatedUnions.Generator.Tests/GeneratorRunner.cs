@@ -5,7 +5,7 @@ namespace AwesomeDiscriminatedUnions.Generator.Tests;
 
 internal static class GeneratorRunner
 {
-    internal static string GetGeneratedOutput<T>(string source)
+    internal static Dictionary<string, string> GetGeneratedOutput<T>(string source, params string[] generatedFileNames)
         where T : IIncrementalGenerator, new()
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
@@ -29,8 +29,15 @@ internal static class GeneratorRunner
 
         Assert.False(diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), $"Failed: {diagnostics.FirstOrDefault()?.GetMessage()}");
 
-        var output = outputCompilation.SyntaxTrees.Last().ToString();
+        var results = new Dictionary<string, string>();
 
-        return output;
+        foreach (var filename in generatedFileNames)
+        {
+            var generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filename);
+            var generatedCode = generatedTree.ToString();
+            results[filename] = generatedCode;
+        }
+
+        return results;
     }
 }
