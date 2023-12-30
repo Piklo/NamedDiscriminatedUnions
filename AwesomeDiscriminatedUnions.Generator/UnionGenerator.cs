@@ -1,15 +1,25 @@
 ﻿using AwesomeDiscriminatedUnions.Generator.Miscellaneous;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-
 namespace AwesomeDiscriminatedUnions;
 
-internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsRefType, bool IsOrContainsGeneric);
+internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsRefType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullable)
+{
+    public enum AllowNullableType
+    {
+        ImplicitNo, // value type without '?'
+        ImplicitYes, // ((ref type or non constrained generic) without '?') and without DisallowNullableAttribute
+        ExplicitNo, // DisallowNullableAttribute(false)
+        ExplicitNoThrowIfNull, // DisallowNullableAttribute(true)
+        ExplicitYes, // type with '?' without DisallowNullableAttribute
+    }
+}
 
 internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<string> Generics, EquatableArray<ParsedType> Types);
 
@@ -93,9 +103,11 @@ internal class UnionGenerator : IIncrementalGenerator
             var fieldName = member.Name;
             var isValueType = type.IsValueType;
             var isRefType = type.IsReferenceType;
-            var isOrContainsGeneric = IsOrContainsGeneric(type);
+            var isGeneric = IsGeneric(type);
+            var containsGeneric = ContainsGeneric(type);
+            var allowNullable = AllowNullable(field, fullTypeName, isValueType, isRefType);
 
-            var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isRefType, isOrContainsGeneric);
+            var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isRefType, isGeneric, containsGeneric, allowNullable);
             list.Add(parsed);
         }
 
@@ -129,6 +141,62 @@ internal class UnionGenerator : IIncrementalGenerator
     private static bool IsOrContainsGeneric(ITypeSymbol type)
     {
         return IsGeneric(type) || ContainsGeneric(type);
+    }
+
+    private static ParsedType.AllowNullableType AllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isRefType)
+    {
+        var containsQuestionMark = fullTypeName.EndsWith("?");
+        var (attributeFound, attributeValue) = GetAllowNullableAttributeData(field);
+
+        if (isValueType && !containsQuestionMark)
+        {
+            return ParsedType.AllowNullableType.ImplicitNo;
+        }
+        else if (!containsQuestionMark && !attributeFound)
+        {
+            return ParsedType.AllowNullableType.ImplicitYes;
+        }
+        else if (attributeFound)
+        {
+            if (!attributeValue)
+            {
+                return ParsedType.AllowNullableType.ExplicitNo;
+            }
+            else
+            {
+                return ParsedType.AllowNullableType.ExplicitNoThrowIfNull;
+            }
+        }
+        else if (containsQuestionMark && !attributeFound)
+        {
+            return ParsedType.AllowNullableType.ExplicitYes;
+        }
+
+        throw new Exception("failed to parse whether type allows nullable or not");
+    }
+
+    private static (bool attributeFound, bool attributeValue) GetAllowNullableAttributeData(IFieldSymbol field)
+    {
+        var attributes = field.GetAttributes();
+        foreach (var attribute in attributes)
+        {
+            var attributeFullName = attribute.AttributeClass?.ToString();
+            if (attributeFullName != "AwesomeDiscriminatedUnions.Attributes.DisallowNullableAttribute")
+            {
+                continue;
+            }
+
+            if (attribute.ConstructorArguments[0].Value is bool explicitValue)
+            {
+                return (true, explicitValue);
+            }
+            else
+            {
+                throw new Exception("non bool value, bool expected");
+            }
+        }
+
+        return (false, default);
     }
 
     private static void GenerateUnion(SourceProductionContext productionContext, DiscriminatedUnionData data)
@@ -254,7 +322,9 @@ internal class UnionGenerator : IIncrementalGenerator
     private static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, ParsedType type)
     {
         var tagName = GetTagName(type);
-        writer.WriteLine($"public readonly bool Is{tagName}(out {type.FullTypeName}{GetNullableQuestionMarkIfNecessary(type)} value)");
+        var notNullWhenAttribute = GetNotNullAttributeIfNecessary(type);
+        var questionMark = GetNullableQuestionMarkIfNecessary(type);
+        writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullTypeName}{questionMark} value)");
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
@@ -279,6 +349,18 @@ internal class UnionGenerator : IIncrementalGenerator
         if (!type.IsValueType && !type.FullTypeName.EndsWith("?"))
         {
             return "?";
+        }
+
+        return string.Empty;
+    }
+
+    private static string GetNotNullAttributeIfNecessary(ParsedType type)
+    {
+        var allowsNullable = type.AllowNullable is ParsedType.AllowNullableType.ImplicitYes or ParsedType.AllowNullableType.ExplicitYes;
+
+        if (allowsNullable)
+        {
+            return "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ";
         }
 
         return string.Empty;
