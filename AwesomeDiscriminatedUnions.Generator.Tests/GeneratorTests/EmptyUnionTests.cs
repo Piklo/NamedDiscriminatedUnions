@@ -1,4 +1,5 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.BaseTests;
+﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests;
+
 public static class EmptyUnionTests
 {
     [Fact]
