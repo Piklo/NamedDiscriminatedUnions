@@ -212,7 +212,12 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteEmptyLine();
         writer.WriteLine("#nullable enable");
         writer.WriteEmptyLine();
-        writer.WriteLine($"namespace {data.FullNamespace};");
+
+        if (!string.IsNullOrWhiteSpace(data.FullNamespace))
+        {
+            writer.WriteLine($"namespace {data.FullNamespace};");
+        }
+
         writer.WriteEmptyLine();
 
         AppendDeclaration(writer, data);
