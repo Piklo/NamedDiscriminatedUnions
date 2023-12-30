@@ -9,12 +9,12 @@ using System.Text;
 using System.Threading;
 namespace AwesomeDiscriminatedUnions;
 
-internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsRefType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullable)
+internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsRefType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods)
 {
     public enum AllowNullableType
     {
         ImplicitNo, // value type without '?'
-        ImplicitYes, // ((ref type or non constrained generic) without '?') and without DisallowNullableAttribute
+        ImplicitYes, // not value type without '?' and without DisallowNullableAttribute
         ExplicitNo, // DisallowNullableAttribute(false)
         ExplicitNoThrowIfNull, // DisallowNullableAttribute(true)
         ExplicitYes, // type with '?' without DisallowNullableAttribute
@@ -105,7 +105,7 @@ internal class UnionGenerator : IIncrementalGenerator
             var isRefType = type.IsReferenceType;
             var isGeneric = IsGeneric(type);
             var containsGeneric = ContainsGeneric(type);
-            var allowNullable = AllowNullable(field, fullTypeName, isValueType, isRefType);
+            var allowNullable = ParseAllowNullable(field, fullTypeName, isValueType, isRefType);
 
             var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isRefType, isGeneric, containsGeneric, allowNullable);
             list.Add(parsed);
@@ -143,7 +143,7 @@ internal class UnionGenerator : IIncrementalGenerator
         return IsGeneric(type) || ContainsGeneric(type);
     }
 
-    private static ParsedType.AllowNullableType AllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isRefType)
+    private static ParsedType.AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isRefType)
     {
         var containsQuestionMark = fullTypeName.EndsWith("?");
         var (attributeFound, attributeValue) = GetAllowNullableAttributeData(field);
@@ -152,7 +152,7 @@ internal class UnionGenerator : IIncrementalGenerator
         {
             return ParsedType.AllowNullableType.ImplicitNo;
         }
-        else if (!containsQuestionMark && !attributeFound)
+        else if (!isValueType && !containsQuestionMark && !attributeFound)
         {
             return ParsedType.AllowNullableType.ImplicitYes;
         }
@@ -223,6 +223,7 @@ internal class UnionGenerator : IIncrementalGenerator
             AppendFields(writer, data);
             AppendConstructor(writer, data);
             AppendIsTypeMethods(writer, data);
+            //AppendFromTypeMethods(writer, data);
         });
         writer.WriteLine("}");
 
@@ -234,8 +235,15 @@ internal class UnionGenerator : IIncrementalGenerator
 
     private static void AppendDeclaration(IndentedTextWriter writer, DiscriminatedUnionData data)
     {
+        writer.WriteLine("[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Auto)]");
+        var type = GetFullTypeNameWithGenerics(data);
+        writer.WriteLine($"partial struct {type}");
+    }
+
+    private static string GetFullTypeNameWithGenerics(DiscriminatedUnionData data)
+    {
         var generics = data.Generics.Array.Length > 0 ? $"<{string.Join(", ", data.Generics.Array)}>" : string.Empty;
-        writer.WriteLine($"partial struct {data.Name}{generics}");
+        return $"{data.Name}{generics}";
     }
 
     private static void AppendTags(IndentedTextWriter writer, DiscriminatedUnionData data)
@@ -276,7 +284,8 @@ internal class UnionGenerator : IIncrementalGenerator
         for (var i = 0; i < data.Types.Array.Length; i++)
         {
             var type = data.Types.Array[i];
-            writer.Write($"{type.FullTypeName} {type.FieldName}");
+            var questionMark = CouldBeNull(type) && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
+            writer.Write($"{type.FullTypeName}{questionMark} {type.FieldName}");
             if (i + 1 < data.Types.Array.Length)
             {
                 writer.Write(", ");
@@ -322,8 +331,9 @@ internal class UnionGenerator : IIncrementalGenerator
     private static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, ParsedType type)
     {
         var tagName = GetTagName(type);
-        var notNullWhenAttribute = GetNotNullAttributeIfNecessary(type);
-        var questionMark = GetNullableQuestionMarkIfNecessary(type);
+        var couldBeNull = CouldBeNull(type);
+        var notNullWhenAttribute = couldBeNull ? "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] " : string.Empty;
+        var questionMark = couldBeNull && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
         writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullTypeName}{questionMark} value)");
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
@@ -333,7 +343,14 @@ internal class UnionGenerator : IIncrementalGenerator
             writer.WriteIndentedBlock(writer =>
             {
                 writer.WriteLine($"value = {type.FieldName};");
-                writer.WriteLine("return true;");
+                if (couldBeNull)
+                {
+                    writer.WriteLine($"return {type.FieldName} is null;");
+                }
+                else
+                {
+                    writer.WriteLine("return true;");
+                }
             });
             writer.WriteLine('}');
             writer.WriteLine();
@@ -344,25 +361,8 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine();
     }
 
-    private static string GetNullableQuestionMarkIfNecessary(ParsedType type)
+    private static bool CouldBeNull(ParsedType type)
     {
-        if (!type.IsValueType && !type.FullTypeName.EndsWith("?"))
-        {
-            return "?";
-        }
-
-        return string.Empty;
-    }
-
-    private static string GetNotNullAttributeIfNecessary(ParsedType type)
-    {
-        var allowsNullable = type.AllowNullable is ParsedType.AllowNullableType.ImplicitYes or ParsedType.AllowNullableType.ExplicitYes;
-
-        if (allowsNullable)
-        {
-            return "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ";
-        }
-
-        return string.Empty;
+        return type.FullTypeName.EndsWith("?") || !type.IsValueType;
     }
 }
