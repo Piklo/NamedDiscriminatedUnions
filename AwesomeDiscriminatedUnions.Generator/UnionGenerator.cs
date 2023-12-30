@@ -223,7 +223,7 @@ internal class UnionGenerator : IIncrementalGenerator
             AppendFields(writer, data);
             AppendConstructor(writer, data);
             AppendIsTypeMethods(writer, data);
-            //AppendFromTypeMethods(writer, data);
+            AppendFromTypeMethods(writer, data);
         });
         writer.WriteLine("}");
 
@@ -364,5 +364,57 @@ internal class UnionGenerator : IIncrementalGenerator
     private static bool CouldBeNull(ParsedType type)
     {
         return type.FullTypeName.EndsWith("?") || !type.IsValueType;
+    }
+
+
+    private static void AppendFromTypeMethods(IndentedTextWriter writer, DiscriminatedUnionData data)
+    {
+        for (var i = 0; i < data.Types.Array.Length; i++)
+        {
+            var type = data.Types.Array[i];
+            var tag = GetTagName(type);
+            var fullTypeName = GetFullTypeNameWithGenerics(data);
+
+            writer.WriteLine($"public static {fullTypeName} From{tag}({type.FullTypeName} value)");
+            writer.WriteLine('{');
+            writer.WriteIndentedBlock(writer =>
+            {
+                if (type.AllowNullableInFromMethods == ParsedType.AllowNullableType.ExplicitNoThrowIfNull)
+                {
+                    writer.WriteLine("if (value is null)");
+                    writer.WriteLine('{');
+                    writer.WriteIndentedBlock(writer =>
+                    {
+                        writer.WriteLine("throw new System.ArgumentNullException(nameof(value));");
+                    });
+                    writer.WriteLine('}');
+                    writer.WriteLine();
+                }
+
+                writer.Write($"return new {fullTypeName}(Tag.{tag}, ");
+                for (var j = 0; j < data.Types.Array.Length; j++)
+                {
+                    var type2 = data.Types.Array[j];
+
+                    if (j == i)
+                    {
+                        writer.Write("value");
+                    }
+                    else
+                    {
+                        writer.Write("default");
+                    }
+
+                    if (j + 1 < data.Types.Array.Length)
+                    {
+                        writer.Write(", ");
+                    }
+                }
+
+                writer.WriteLine(");");
+            });
+            writer.WriteLine('}');
+            writer.WriteLine();
+        }
     }
 }
