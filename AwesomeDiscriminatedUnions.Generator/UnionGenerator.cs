@@ -347,7 +347,7 @@ internal class UnionGenerator : IIncrementalGenerator
             writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
             {
-                writer.WriteLine($"value = {type.FieldName};");
+                writer.WriteLine($"value = this.{type.FieldName};");
                 if (couldBeNull)
                 {
                     writer.WriteLine($"return {type.FieldName} is null;");
