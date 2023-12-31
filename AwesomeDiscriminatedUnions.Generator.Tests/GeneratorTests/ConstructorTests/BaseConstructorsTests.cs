@@ -75,7 +75,7 @@ public static class BaseConstructorsTests
     }
 
     [Fact]
-    public static void NotValueTypeParameterIsNotNullable()
+    public static void NotNullableValueTypeParameterIsNotNullable()
     {
         const string source = """
                     using AwesomeDiscriminatedUnions.Attributes;
