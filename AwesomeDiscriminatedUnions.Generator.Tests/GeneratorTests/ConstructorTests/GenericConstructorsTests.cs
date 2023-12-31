@@ -2,7 +2,7 @@
 
 public static class GenericConstructorsTests
 {    /// <summary>
-     /// T could be ref or value type, but for ref types default would be null, therefore it should be nullable
+     /// T could be reference or value type, but for reference types default would be null, therefore it should be nullable
      /// </summary>
     [Fact]
     public static void NotNullableGenericParameterTypeIsNullable()

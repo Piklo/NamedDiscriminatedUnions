@@ -50,7 +50,7 @@ public static class BaseConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NotNullableRefParameterTypeIsNullableDisallowNullable()
+    public static void NotNullableReferenceParameterTypeIsNullableDisallowNullable()
     {
         const string source = """
                     using AwesomeDiscriminatedUnions.Attributes;
@@ -72,7 +72,7 @@ public static class BaseConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableRefParameterTypeIsNullableDisallowNullable()
+    public static void NullableReferenceParameterTypeIsNullableDisallowNullable()
     {
         const string source = """
                     using AwesomeDiscriminatedUnions.Attributes;

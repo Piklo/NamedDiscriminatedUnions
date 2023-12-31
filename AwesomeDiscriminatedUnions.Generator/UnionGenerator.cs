@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 namespace AwesomeDiscriminatedUnions;
 
-internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsRefType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods)
+internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods)
 {
     public enum AllowNullableType
     {
@@ -102,12 +102,12 @@ internal class UnionGenerator : IIncrementalGenerator
             var fullTypeName = type.ToString();
             var fieldName = member.Name;
             var isValueType = type.IsValueType;
-            var isRefType = type.IsReferenceType;
+            var isReferenceType = type.IsReferenceType;
             var isGeneric = IsGeneric(type);
             var containsGeneric = ContainsGeneric(type);
-            var allowNullable = ParseAllowNullable(field, fullTypeName, isValueType, isRefType);
+            var allowNullable = ParseAllowNullable(field, fullTypeName, isValueType, isReferenceType);
 
-            var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isRefType, isGeneric, containsGeneric, allowNullable);
+            var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isReferenceType, isGeneric, containsGeneric, allowNullable);
             list.Add(parsed);
         }
 
@@ -143,7 +143,7 @@ internal class UnionGenerator : IIncrementalGenerator
         return IsGeneric(type) || ContainsGeneric(type);
     }
 
-    private static ParsedType.AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isRefType)
+    private static ParsedType.AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isReferenceType)
     {
         var containsQuestionMark = fullTypeName.EndsWith("?");
         var (attributeFound, attributeValue) = GetAllowNullableAttributeData(field);

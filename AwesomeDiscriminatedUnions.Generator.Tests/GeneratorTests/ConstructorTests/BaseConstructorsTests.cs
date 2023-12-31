@@ -117,7 +117,7 @@ public static class BaseConstructorsTests
     }
 
     [Fact]
-    public static void NotNullableRefParameterTypeIsNullable()
+    public static void NotNullableReferenceParameterTypeIsNullable()
     {
         const string source = """
                     using AwesomeDiscriminatedUnions.Attributes;
@@ -138,7 +138,7 @@ public static class BaseConstructorsTests
     }
 
     [Fact]
-    public static void NullableRefParameterTypeIsNullable()
+    public static void NullableReferenceParameterTypeIsNullable()
     {
         const string source = """
                     using AwesomeDiscriminatedUnions.Attributes;
