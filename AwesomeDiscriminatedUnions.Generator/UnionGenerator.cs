@@ -337,7 +337,8 @@ internal class UnionGenerator : IIncrementalGenerator
     {
         var tagName = GetTagName(type);
         var couldBeNull = CouldBeNull(type);
-        var notNullWhenAttribute = couldBeNull ? "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] " : string.Empty;
+        var canUseNotNullWhenAttribute = couldBeNull && type.AllowNullableInFromMethods == ParsedType.AllowNullableType.ExplicitNoThrowIfNull;
+        var notNullWhenAttribute = canUseNotNullWhenAttribute ? "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] " : string.Empty;
         var questionMark = couldBeNull && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
         writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullTypeName}{questionMark} value)");
         writer.WriteLine('{');
@@ -347,15 +348,16 @@ internal class UnionGenerator : IIncrementalGenerator
             writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
             {
-                writer.WriteLine($"value = this.{type.FieldName};");
-                if (couldBeNull)
+                if (canUseNotNullWhenAttribute)
                 {
-                    writer.WriteLine($"return {type.FieldName} is null;");
+                    writer.WriteLine($"value = this.{type.FieldName}!;"); /// we can use null forgiving because of <see cref="ParsedType.AllowNullableType.ExplicitNoThrowIfNull"/>
                 }
                 else
                 {
-                    writer.WriteLine("return true;");
+                    writer.WriteLine($"value = this.{type.FieldName};");
                 }
+
+                writer.WriteLine("return true;");
             });
             writer.WriteLine('}');
             writer.WriteLine();
