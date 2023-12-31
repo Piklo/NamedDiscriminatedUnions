@@ -1,0 +1,109 @@
+﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+
+public static class BaseConstructorsTests
+{
+    [Fact]
+    public static void ConstructorIsPrivate()
+    {
+        const string source = """
+                    using AwesomeDiscriminatedUnions.Attributes;
+                                        
+                    namespace TestNamespace;
+
+                    [DiscriminatedUnion]
+                    public readonly partial struct Union
+                    {
+                        private readonly int value;
+                    }
+                    """;
+        const string generatedFileName = "Union.g.cs";
+
+        var res = GeneratorRunner.GetGeneratedOutput<UnionGenerator>(source, generatedFileName)[generatedFileName];
+
+        res.Should().Contain("private Union(Tag tag, int value)");
+    }
+
+    [Fact]
+    public static void NotValueTypeParameterIsNotNullable()
+    {
+        const string source = """
+                    using AwesomeDiscriminatedUnions.Attributes;
+                                        
+                    namespace TestNamespace;
+
+                    [DiscriminatedUnion]
+                    public readonly partial struct Union
+                    {
+                        private readonly int value;
+                    }
+                    """;
+        const string generatedFileName = "Union.g.cs";
+
+        var res = GeneratorRunner.GetGeneratedOutput<UnionGenerator>(source, generatedFileName)[generatedFileName];
+
+        res.Should().Contain("private Union(Tag tag, int value)");
+    }
+
+    [Fact]
+    public static void NullableValueTypeParameterIsNullable()
+    {
+        const string source = """
+                    using AwesomeDiscriminatedUnions.Attributes;
+                                        
+                    namespace TestNamespace;
+
+                    [DiscriminatedUnion]
+                    public readonly partial struct Union
+                    {
+                        private readonly int? value;
+                    }
+                    """;
+        const string generatedFileName = "Union.g.cs";
+
+        var res = GeneratorRunner.GetGeneratedOutput<UnionGenerator>(source, generatedFileName)[generatedFileName];
+
+        res.Should().Contain("private Union(Tag tag, int? value)");
+    }
+
+    [Fact]
+    public static void NotNullableRefParameterTypeIsNullable()
+    {
+        const string source = """
+                    using AwesomeDiscriminatedUnions.Attributes;
+                                        
+                    namespace TestNamespace;
+
+                    [DiscriminatedUnion]
+                    public readonly partial struct Union
+                    {
+                        private readonly string value;
+                    }
+                    """;
+        const string generatedFileName = "Union.g.cs";
+
+        var res = GeneratorRunner.GetGeneratedOutput<UnionGenerator>(source, generatedFileName)[generatedFileName];
+
+        res.Should().Contain("private Union(Tag tag, string? value)");
+    }
+
+    [Fact]
+    public static void NullableRefParameterTypeIsNullable()
+    {
+        const string source = """
+                    using AwesomeDiscriminatedUnions.Attributes;
+                                        
+                    namespace TestNamespace;
+
+                    [DiscriminatedUnion]
+                    public readonly partial struct Union
+                    {
+                        private readonly string value;
+                    }
+                    """;
+        const string generatedFileName = "Union.g.cs";
+
+        var res = GeneratorRunner.GetGeneratedOutput<UnionGenerator>(source, generatedFileName)[generatedFileName];
+
+        res.Should().Contain("private Union(Tag tag, string? value)");
+    }
+}
