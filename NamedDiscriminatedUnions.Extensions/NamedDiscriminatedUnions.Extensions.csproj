@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AwesomeDiscriminatedUnions.Generator\AwesomeDiscriminatedUnions.Generator.csproj" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\NamedDiscriminatedUnions.Generator\NamedDiscriminatedUnions.Generator.csproj" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>
