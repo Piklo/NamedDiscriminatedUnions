@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "AwesomeDiscriminatedUnions": {
+    "NamedDiscriminatedUnions": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\AwesomeDiscriminatedUnions\\AwesomeDiscriminatedUnions.csproj"
+      "targetProject": "..\\NamedDiscriminatedUnions\\NamedDiscriminatedUnions.csproj"
     },
-    "AwesomeDiscriminatedUnions.Example": {
+    "NamedDiscriminatedUnions.Example": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\AwesomeDiscriminatedUnions.Example\\AwesomeDiscriminatedUnions.Example.csproj"
+      "targetProject": "..\\NamedDiscriminatedUnions.Example\\NamedDiscriminatedUnions.Example.csproj"
     }
   },
 }
