@@ -257,7 +257,6 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine("{");
         writer.WriteIndentedBlock((writer) =>
         {
-            writer.WriteLine("None = 0,");
             for (var i = 0; i < data.Types.Array.Length; i++)
             {
                 var type = data.Types.Array[i];
