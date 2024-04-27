@@ -242,7 +242,7 @@ internal class UnionGenerator : IIncrementalGenerator
     {
         writer.WriteLine("[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Auto)]");
         var type = GetFullTypeNameWithGenerics(data);
-        writer.WriteLine($"partial struct {type}");
+        writer.WriteLine($"readonly partial struct {type}");
     }
 
     private static string GetFullTypeNameWithGenerics(DiscriminatedUnionData data)
