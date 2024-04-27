@@ -30,7 +30,6 @@ public static class TagEnumTests
             """
                 public enum Tag : byte
                 {
-                    None = 0,
                     Value = 1,
                 }
             """
@@ -53,7 +52,6 @@ public static class TagEnumTests
             """
                 public enum Tag : byte
                 {
-                    None = 0,
                     Int1 = 1,
                     Int2 = 2,
                 }
@@ -78,7 +76,6 @@ public static class TagEnumTests
             """
                 public enum Tag : byte
                 {
-                    None = 0,
                     Int1 = 1,
                     Int2 = 2,
                     Long1 = 3,
