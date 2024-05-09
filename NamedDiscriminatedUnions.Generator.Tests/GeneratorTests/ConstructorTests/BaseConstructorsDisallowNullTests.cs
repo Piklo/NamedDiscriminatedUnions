@@ -1,12 +1,12 @@
 ﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
 
 /// <summary>
-/// despite "disallowing nullable" constructors should allow nullable (if necessary), since we only pass one of the parameters with non default value
+/// despite "disallowing null" constructors should allow null (if necessary), since we only pass one of the parameters with non default value
 /// </summary>
-public static class BaseConstructorsDisallowNullableTests
+public static class BaseConstructorsDisallowNullTests
 {
     [Fact]
-    public static void NotValueTypeParameterIsNotNullableDisallowNullable()
+    public static void NotNullableValueTypeParameterIsNotNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -16,7 +16,7 @@ public static class BaseConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly int value;
                     }
                     """;
@@ -28,7 +28,7 @@ public static class BaseConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableValueTypeParameterIsNullableDisallowNullable()
+    public static void NullableValueTypeParameterIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -38,7 +38,7 @@ public static class BaseConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly int? value;
                     }
                     """;
@@ -50,7 +50,7 @@ public static class BaseConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NotNullableReferenceParameterTypeIsNullableDisallowNullable()
+    public static void NotNullableReferenceParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -60,7 +60,7 @@ public static class BaseConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly string value;
                     }
                     """;
@@ -72,7 +72,7 @@ public static class BaseConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableReferenceParameterTypeIsNullableDisallowNullable()
+    public static void NullableReferenceParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -82,7 +82,7 @@ public static class BaseConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly string value;
                     }
                     """;

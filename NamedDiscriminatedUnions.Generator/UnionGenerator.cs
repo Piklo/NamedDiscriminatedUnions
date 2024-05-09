@@ -1,6 +1,6 @@
-﻿using NamedDiscriminatedUnions.Generator.Miscellaneous;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NamedDiscriminatedUnions.Generator.Miscellaneous;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -14,10 +14,10 @@ internal readonly record struct ParsedType(string FullTypeName, string FieldName
     public enum AllowNullableType
     {
         ImplicitNo, // value type without '?'
-        ImplicitYes, // not value type without '?' and without DisallowNullableAttribute
-        ExplicitNo, // DisallowNullableAttribute(false)
-        ExplicitNoThrowIfNull, // DisallowNullableAttribute(true)
-        ExplicitYes, // type with '?' without DisallowNullableAttribute
+        ImplicitYes, // not value type without '?' and without DisallowNullAttribute
+        ExplicitNo, // DisallowNullAttribute(false)
+        ExplicitNoThrowIfNull, // DisallowNullAttribute(true)
+        ExplicitYes, // type with '?' without DisallowNullAttribute
     }
 }
 
@@ -181,7 +181,7 @@ internal class UnionGenerator : IIncrementalGenerator
         foreach (var attribute in attributes)
         {
             var attributeFullName = attribute.AttributeClass?.ToString();
-            if (attributeFullName != "NamedDiscriminatedUnions.Attributes.DisallowNullableAttribute")
+            if (attributeFullName != "NamedDiscriminatedUnions.Attributes.DisallowNullAttribute")
             {
                 continue;
             }

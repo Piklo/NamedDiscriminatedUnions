@@ -1,15 +1,15 @@
 ﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
 
 /// <summary>
-/// despite "disallowing nullable" constructors should allow nullable (if necessary), since we only pass one of the parameters with non default value
+/// despite "disallowing null" constructors should allow null (if necessary), since we only pass one of the parameters with non default value
 /// </summary>
-public static class GenericConstructorsDisallowNullableTests
+public static class GenericConstructorsDisallowNullTests
 {
     /// <summary>
     /// T could be reference or value type, but for reference types default would be null, therefore it should be nullable
     /// </summary>
     [Fact]
-    public static void NotNullableGenericParameterTypeIsNullableDisallowNullable()
+    public static void NotNullableGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -19,7 +19,7 @@ public static class GenericConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union<T>
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T value;
                     }
                     """;
@@ -31,7 +31,7 @@ public static class GenericConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableGenericParameterTypeIsNullableDisallowNullable()
+    public static void NullableGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -41,7 +41,7 @@ public static class GenericConstructorsDisallowNullableTests
                     [DiscriminatedUnion]
                     public readonly partial struct Union<T>
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T? value;
                     }
                     """;
@@ -53,7 +53,7 @@ public static class GenericConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NotNullableStructGenericParameterTypeIsNotNullableDisallowNullable()
+    public static void NotNullableStructGenericParameterTypeIsNotNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -64,7 +64,7 @@ public static class GenericConstructorsDisallowNullableTests
                     public readonly partial struct Union<T>
                         where T : struct
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T value;
                     }
                     """;
@@ -76,7 +76,7 @@ public static class GenericConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableStructGenericParameterTypeIsNullableDisallowNullable()
+    public static void NullableStructGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -87,7 +87,7 @@ public static class GenericConstructorsDisallowNullableTests
                     public readonly partial struct Union<T>
                         where T : struct
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T? value;
                     }
                     """;
@@ -99,7 +99,7 @@ public static class GenericConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NotNullableClassGenericParameterTypeIsNullableDisallowNullable()
+    public static void NotNullableClassGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -110,7 +110,7 @@ public static class GenericConstructorsDisallowNullableTests
                     public readonly partial struct Union<T>
                         where T : class
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T value;
                     }
                     """;
@@ -122,7 +122,7 @@ public static class GenericConstructorsDisallowNullableTests
     }
 
     [Fact]
-    public static void NullableClassGenericParameterTypeIsNullableDisallowNullable()
+    public static void NullableClassGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
@@ -133,7 +133,7 @@ public static class GenericConstructorsDisallowNullableTests
                     public readonly partial struct Union<T>
                         where T : class
                     {
-                        [DisallowNullable]
+                        [DisallowNull]
                         private readonly T? value;
                     }
                     """;
