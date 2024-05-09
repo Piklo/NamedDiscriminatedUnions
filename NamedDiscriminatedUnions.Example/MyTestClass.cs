@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Example;
+﻿namespace NamedDiscriminatedUnions.Example;
 
 internal class MyTestClass
 {

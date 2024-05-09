@@ -1,4 +1,4 @@
-﻿using AwesomeDiscriminatedUnions.Generator.Miscellaneous;
+﻿using NamedDiscriminatedUnions.Generator.Miscellaneous;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-namespace AwesomeDiscriminatedUnions;
+namespace NamedDiscriminatedUnions;
 
 internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods)
 {
@@ -30,7 +30,7 @@ internal class UnionGenerator : IIncrementalGenerator
     {
         var discriminatedUnionData =
             context.SyntaxProvider.ForAttributeWithMetadataName(
-                "AwesomeDiscriminatedUnions.Attributes.DiscriminatedUnionAttribute",
+                "NamedDiscriminatedUnions.Attributes.DiscriminatedUnionAttribute",
                 IsRightNode,
                 ParseDiscriminatedUnionData);
 
@@ -181,7 +181,7 @@ internal class UnionGenerator : IIncrementalGenerator
         foreach (var attribute in attributes)
         {
             var attributeFullName = attribute.AttributeClass?.ToString();
-            if (attributeFullName != "AwesomeDiscriminatedUnions.Attributes.DisallowNullableAttribute")
+            if (attributeFullName != "NamedDiscriminatedUnions.Attributes.DisallowNullableAttribute")
             {
                 continue;
             }

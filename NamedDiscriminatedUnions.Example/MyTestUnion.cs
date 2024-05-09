@@ -1,7 +1,7 @@
-﻿using AwesomeDiscriminatedUnions.Attributes;
+﻿using NamedDiscriminatedUnions.Attributes;
 using System.Collections.Generic;
 
-namespace AwesomeDiscriminatedUnions.Example;
+namespace NamedDiscriminatedUnions.Example;
 
 [DiscriminatedUnion]
 internal readonly partial struct MyTestUnion<T>

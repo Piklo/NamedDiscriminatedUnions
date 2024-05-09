@@ -1,7 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 
-namespace AwesomeDiscriminatedUnions.Generator.Miscellaneous;
+namespace NamedDiscriminatedUnions.Generator.Miscellaneous;
 
 internal static class IndentedTextWriterExtensions
 {

@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
 
 /// <summary>
 /// despite "disallowing nullable" constructors should allow nullable (if necessary), since we only pass one of the parameters with non default value
@@ -9,7 +9,7 @@ public static class BaseConstructorsDisallowNullableTests
     public static void NotValueTypeParameterIsNotNullableDisallowNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -31,7 +31,7 @@ public static class BaseConstructorsDisallowNullableTests
     public static void NullableValueTypeParameterIsNullableDisallowNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -53,7 +53,7 @@ public static class BaseConstructorsDisallowNullableTests
     public static void NotNullableReferenceParameterTypeIsNullableDisallowNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -75,7 +75,7 @@ public static class BaseConstructorsDisallowNullableTests
     public static void NullableReferenceParameterTypeIsNullableDisallowNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AwesomeDiscriminatedUnions.Attributes;
+namespace NamedDiscriminatedUnions.Attributes;
 
 [AttributeUsage(AttributeTargets.Field)]
 public sealed class DisallowNullableAttribute : Attribute

@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
 
 public static class BaseConstructorsTests
 {
@@ -6,7 +6,7 @@ public static class BaseConstructorsTests
     public static void ConstructorIsPrivate()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -27,7 +27,7 @@ public static class BaseConstructorsTests
     public static void ConstructorWithMultipleParameters()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -49,7 +49,7 @@ public static class BaseConstructorsTests
     public static void ConstructorAssignsValues()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -78,7 +78,7 @@ public static class BaseConstructorsTests
     public static void NotNullableValueTypeParameterIsNotNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -99,7 +99,7 @@ public static class BaseConstructorsTests
     public static void NullableValueTypeParameterIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -120,7 +120,7 @@ public static class BaseConstructorsTests
     public static void NotNullableReferenceParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -141,7 +141,7 @@ public static class BaseConstructorsTests
     public static void NullableReferenceParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 

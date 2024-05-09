@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
 
 public static class GenericConstructorsTests
 {    /// <summary>
@@ -8,7 +8,7 @@ public static class GenericConstructorsTests
     public static void NotNullableGenericParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -29,7 +29,7 @@ public static class GenericConstructorsTests
     public static void NullableGenericParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -50,7 +50,7 @@ public static class GenericConstructorsTests
     public static void NotNullableStructGenericParameterTypeIsNotNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -72,7 +72,7 @@ public static class GenericConstructorsTests
     public static void NullableStructGenericParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -94,7 +94,7 @@ public static class GenericConstructorsTests
     public static void NotNullableClassGenericParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -116,7 +116,7 @@ public static class GenericConstructorsTests
     public static void NullableClassGenericParameterTypeIsNullable()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 

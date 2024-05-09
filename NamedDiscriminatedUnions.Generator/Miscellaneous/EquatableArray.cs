@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AwesomeDiscriminatedUnions.Generator.Miscellaneous;
+namespace NamedDiscriminatedUnions.Generator.Miscellaneous;
 
 internal static class EquatableArray
 {

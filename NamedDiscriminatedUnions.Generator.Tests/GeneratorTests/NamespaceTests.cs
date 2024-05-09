@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests;
 
 public static class NamespaceTests
 {
@@ -7,7 +7,7 @@ public static class NamespaceTests
     public static void UnionIsGeneratedInTheRightNamespace()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
@@ -28,7 +28,7 @@ public static class NamespaceTests
     public static void UnionCanBeGeneratedWithoutNamespace()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     [DiscriminatedUnion]
                     public readonly partial struct Union

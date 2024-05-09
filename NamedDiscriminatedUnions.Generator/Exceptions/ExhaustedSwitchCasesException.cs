@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace AwesomeDiscriminatedUnions.Generator.Exceptions;
+namespace NamedDiscriminatedUnions.Generator.Exceptions;
 public class ExhaustedSwitchCasesException : Exception
 {
     public ExhaustedSwitchCasesException()

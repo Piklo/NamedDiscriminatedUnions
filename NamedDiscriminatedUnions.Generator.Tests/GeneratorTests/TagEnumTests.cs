@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests;
 
 public static class TagEnumTests
 {
@@ -16,7 +16,7 @@ public static class TagEnumTests
 
         yield return new object[] {
             """
-            using AwesomeDiscriminatedUnions.Attributes;
+            using NamedDiscriminatedUnions.Attributes;
                                 
             namespace TestNamespace;
             
@@ -37,7 +37,7 @@ public static class TagEnumTests
 
         yield return new object[] {
             """
-            using AwesomeDiscriminatedUnions.Attributes;
+            using NamedDiscriminatedUnions.Attributes;
                                 
             namespace TestNamespace;
             
@@ -60,7 +60,7 @@ public static class TagEnumTests
 
         yield return new object[] {
             """
-            using AwesomeDiscriminatedUnions.Attributes;
+            using NamedDiscriminatedUnions.Attributes;
                                 
             namespace TestNamespace;
             

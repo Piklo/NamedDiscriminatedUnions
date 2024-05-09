@@ -1,6 +1,6 @@
-﻿using AwesomeDiscriminatedUnions.Attributes;
+﻿using NamedDiscriminatedUnions.Attributes;
 
-namespace AwesomeDiscriminatedUnions.Types;
+namespace NamedDiscriminatedUnions.Types;
 
 [DiscriminatedUnion]
 public readonly partial struct Result<T, E>

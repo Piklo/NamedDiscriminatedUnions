@@ -1,4 +1,4 @@
-﻿namespace AwesomeDiscriminatedUnions.Generator.Tests.GeneratorTests;
+﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests;
 
 public static class EmptyUnionTests
 {
@@ -6,7 +6,7 @@ public static class EmptyUnionTests
     public static void EmptyUnionGeneratesNothing()
     {
         const string source = """
-                    using AwesomeDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions.Attributes;
                                         
                     namespace TestNamespace;
 
