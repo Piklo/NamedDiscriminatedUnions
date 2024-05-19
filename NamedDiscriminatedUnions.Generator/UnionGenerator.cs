@@ -229,6 +229,8 @@ internal class UnionGenerator : IIncrementalGenerator
             AppendConstructor(writer, data);
             AppendIsTypeMethods(writer, data);
             AppendFromTypeMethods(writer, data);
+            AppendMatchMethod(writer, data);
+            AppendSwitchMethod(writer, data);
         });
         writer.WriteLine("}");
 
@@ -422,5 +424,68 @@ internal class UnionGenerator : IIncrementalGenerator
             writer.WriteLine('}');
             writer.WriteLine();
         }
+    }
+
+
+    private static void AppendMatchMethod(IndentedTextWriter writer, DiscriminatedUnionData data)
+    {
+        AppendMatchSwitchMethodInternal(writer, data, true);
+    }
+    private static void AppendSwitchMethod(IndentedTextWriter writer, DiscriminatedUnionData data)
+    {
+        AppendMatchSwitchMethodInternal(writer, data, false);
+    }
+
+    private static void AppendMatchSwitchMethodInternal(IndentedTextWriter writer, DiscriminatedUnionData data, bool isMatch)
+    {
+        writer.Write($"public readonly {(isMatch ? "TMatchResult Match<TMatchResult>" : "void Switch")}(");
+
+        for (var i = 0; i < data.Types.Array.Length; i++)
+        {
+            var type = data.Types.Array[i];
+            var tag = GetTagName(type);
+            writer.Write($"{(isMatch ? $"System.Func<{type.FullTypeName}, TMatchResult>" : $"System.Action<{type.FullTypeName}>")} parse{tag}");
+            writer.Write(", ");
+        }
+
+        writer.Write($"{(isMatch ? $"System.Func<TMatchResult>" : $"System.Action")} parseNotProperlyConstructed");
+
+        writer.WriteLine(")");
+        writer.WriteLine("{");
+        writer.WriteIndentedBlock((writer) =>
+        {
+            writer.WriteLine("switch (tag)");
+            writer.WriteLine("{");
+            writer.WriteIndentedBlock((writer) =>
+            {
+                foreach (var type in data.Types.Array)
+                {
+                    var tag = GetTagName(type);
+                    writer.WriteLine($"case Tag.{tag}:");
+                    writer.WriteIndentedBlock((writer) =>
+                    {
+                        writer.WriteLine($"{(isMatch ? "return " : "")}parse{tag}({type.FieldName});");
+                        if (!isMatch)
+                        {
+                            writer.WriteLine("break;");
+                        }
+                    });
+                }
+
+                writer.WriteLine($"default:");
+                writer.WriteIndentedBlock((writer) =>
+                {
+                    writer.WriteLine($"{(isMatch ? "return " : "")}parseNotProperlyConstructed();");
+                    if (!isMatch)
+                    {
+                        writer.WriteLine("break;");
+                    }
+                });
+            });
+            writer.WriteLine("}");
+        });
+
+        writer.WriteLine("}");
+        writer.WriteLine();
     }
 }
