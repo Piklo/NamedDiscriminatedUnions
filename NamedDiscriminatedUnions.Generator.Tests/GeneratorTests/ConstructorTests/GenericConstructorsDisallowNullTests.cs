@@ -80,7 +80,7 @@ public static class GenericConstructorsDisallowNullTests
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
-                                        
+
                     namespace TestNamespace;
 
                     [DiscriminatedUnion]
@@ -103,7 +103,7 @@ public static class GenericConstructorsDisallowNullTests
     {
         const string source = """
                     using NamedDiscriminatedUnions.Attributes;
-                                        
+
                     namespace TestNamespace;
 
                     [DiscriminatedUnion]
