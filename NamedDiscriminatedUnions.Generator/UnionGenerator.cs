@@ -21,7 +21,7 @@ internal readonly record struct ParsedType(string FullTypeName, string FieldName
     }
 }
 
-internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<string> Generics, EquatableArray<ParsedType> Types);
+internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<string> Generics, EquatableArray<ParsedType> Types, bool IsRefStruct);
 
 [Generator]
 internal class UnionGenerator : IIncrementalGenerator
@@ -49,7 +49,8 @@ internal class UnionGenerator : IIncrementalGenerator
         var fullNamespace = GetFullNamespace(context.TargetSymbol);
         var generics = GetGenerics(context);
         var types = GetParsedTypes(context);
-        var data = new DiscriminatedUnionData(name, fullNamespace, generics.ToEquatableArray(), types.ToEquatableArray());
+        var isRefStruct = ((INamedTypeSymbol)context.TargetSymbol).IsRefLikeType;
+        var data = new DiscriminatedUnionData(name, fullNamespace, generics.ToEquatableArray(), types.ToEquatableArray(), isRefStruct);
 
         return data;
     }
