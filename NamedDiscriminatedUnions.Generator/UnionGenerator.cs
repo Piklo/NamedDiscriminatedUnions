@@ -328,6 +328,8 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
+            writer.WriteLine(GetTagAssert());
+            writer.WriteLine();
             writer.WriteLine($"return tag == Tag.{tagName};");
         });
         writer.WriteLine('}');
@@ -345,6 +347,8 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
+            writer.WriteLine(GetTagAssert());
+            writer.WriteLine();
             writer.WriteLine($"if (tag == Tag.{tagName})");
             writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
@@ -445,10 +449,11 @@ internal class UnionGenerator : IIncrementalGenerator
             var type = data.Types.Array[i];
             var tag = GetTagName(type);
             writer.Write($"{(isMatch ? $"System.Func<{type.FullTypeName}, TMatchResult>" : $"System.Action<{type.FullTypeName}>")} parse{tag}");
-            writer.Write(", ");
+            if (i + 1 < data.Types.Array.Length)
+            {
+                writer.Write(", ");
+            }
         }
-
-        writer.Write($"{(isMatch ? $"System.Func<TMatchResult>" : $"System.Action")} parseNotProperlyConstructed");
 
         writer.WriteLine(")");
         writer.WriteLine("{");
@@ -475,11 +480,8 @@ internal class UnionGenerator : IIncrementalGenerator
                 writer.WriteLine($"default:");
                 writer.WriteIndentedBlock((writer) =>
                 {
-                    writer.WriteLine($"{(isMatch ? "return " : "")}parseNotProperlyConstructed();");
-                    if (!isMatch)
-                    {
-                        writer.WriteLine("break;");
-                    }
+                    writer.WriteLine(GetTagFail());
+                    writer.WriteLine("""throw new System.Exception("Unknown tag"); // should never happen""");
                 });
             });
             writer.WriteLine("}");
@@ -487,5 +489,20 @@ internal class UnionGenerator : IIncrementalGenerator
 
         writer.WriteLine("}");
         writer.WriteLine();
+    }
+
+    private static string GetTagMessage()
+    {
+        return "Union not properly constructed.";
+    }
+
+    private static string GetTagAssert()
+    {
+        return $"""System.Diagnostics.Trace.Assert(tag != 0, "{GetTagMessage()}");""";
+    }
+
+    private static string GetTagFail()
+    {
+        return $"""System.Diagnostics.Trace.Fail("{GetTagMessage()}");""";
     }
 }
