@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+
 namespace NamedDiscriminatedUnions;
 
 internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods)
@@ -477,7 +478,7 @@ internal class UnionGenerator : IIncrementalGenerator
                 writer.WriteLine($"default:");
                 writer.WriteIndentedBlock((writer) =>
                 {
-                    writer.WriteLine("""throw new System.Exception("Unknown tag"); // should never happen""");
+                    writer.WriteLine("""throw new NamedDiscriminatedUnions.Generator.Exceptions.UnknownTagException($"Unknown tag = {this.tag}");""");
                 });
             });
             writer.WriteLine("}");
@@ -485,10 +486,5 @@ internal class UnionGenerator : IIncrementalGenerator
 
         writer.WriteLine("}");
         writer.WriteLine();
-    }
-
-    private static string GetTagMessage()
-    {
-        return "Union not properly constructed.";
     }
 }
