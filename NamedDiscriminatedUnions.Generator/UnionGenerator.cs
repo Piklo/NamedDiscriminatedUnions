@@ -329,8 +329,6 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
-            writer.WriteLine(GetTagAssert());
-            writer.WriteLine();
             writer.WriteLine($"return tag == Tag.{tagName};");
         });
         writer.WriteLine('}');
@@ -348,8 +346,6 @@ internal class UnionGenerator : IIncrementalGenerator
         writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
-            writer.WriteLine(GetTagAssert());
-            writer.WriteLine();
             writer.WriteLine($"if (tag == Tag.{tagName})");
             writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
@@ -481,7 +477,6 @@ internal class UnionGenerator : IIncrementalGenerator
                 writer.WriteLine($"default:");
                 writer.WriteIndentedBlock((writer) =>
                 {
-                    writer.WriteLine(GetTagFail());
                     writer.WriteLine("""throw new System.Exception("Unknown tag"); // should never happen""");
                 });
             });
@@ -495,15 +490,5 @@ internal class UnionGenerator : IIncrementalGenerator
     private static string GetTagMessage()
     {
         return "Union not properly constructed.";
-    }
-
-    private static string GetTagAssert()
-    {
-        return $"""System.Diagnostics.Trace.Assert(tag != 0, "{GetTagMessage()}");""";
-    }
-
-    private static string GetTagFail()
-    {
-        return $"""System.Diagnostics.Trace.Fail("{GetTagMessage()}");""";
     }
 }
