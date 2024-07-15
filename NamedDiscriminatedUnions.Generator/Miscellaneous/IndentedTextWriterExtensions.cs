@@ -10,10 +10,20 @@ internal static class IndentedTextWriterExtensions
         writer.WriteLineNoTabs(string.Empty);
     }
 
-    public static void WriteIndentedBlock(this IndentedTextWriter writer, Action<IndentedTextWriter> action)
+    public static void WriteIndentedBlock(this IndentedTextWriter writer, Action<IndentedTextWriter> action, bool wrapWithBraces = true)
     {
+        if (wrapWithBraces)
+        {
+            writer.WriteLine("{");
+        }
+
         writer.Indent++;
         action.Invoke(writer);
         writer.Indent--;
+
+        if (wrapWithBraces)
+        {
+            writer.WriteLine("}");
+        }
     }
 }

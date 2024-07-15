@@ -20,7 +20,6 @@ internal static class BaseGenerator
         AppendHeader(writer);
         AppendNamespace(writer, data.FullNamespace);
         AppendDeclaration(writer, data.Name, data.Generics.Array);
-        writer.WriteLine("{");
         writer.WriteIndentedBlock((writer) =>
         {
             AppendTags(writer, data);
@@ -31,7 +30,6 @@ internal static class BaseGenerator
             AppendMatchMethod(writer, data);
             AppendSwitchMethod(writer, data);
         });
-        writer.WriteLine("}");
 
         var code = baseWriter.ToString();
 
@@ -72,7 +70,6 @@ internal static class BaseGenerator
     private static void AppendTags(IndentedTextWriter writer, DiscriminatedUnionData data)
     {
         writer.WriteLine("public enum Tag : byte");
-        writer.WriteLine("{");
         writer.WriteIndentedBlock((writer) =>
         {
             for (var i = 0; i < data.Types.Array.Length; i++)
@@ -82,7 +79,6 @@ internal static class BaseGenerator
                 writer.WriteLine($"{tagName} = {i + 1},");
             }
         });
-        writer.WriteLine("}");
         writer.WriteLine();
     }
 
@@ -115,7 +111,6 @@ internal static class BaseGenerator
         }
 
         writer.WriteLine(")");
-        writer.WriteLine("{");
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine("this.tag = tag;");
@@ -124,7 +119,6 @@ internal static class BaseGenerator
                 writer.WriteLine($"this.{type.FieldName} = {type.FieldName};");
             }
         });
-        writer.WriteLine("}");
         writer.WriteLine();
     }
 
@@ -141,12 +135,10 @@ internal static class BaseGenerator
     {
         var tagName = GetTagName(type);
         writer.WriteLine($"public readonly bool Is{tagName}()");
-        writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine($"return tag == Tag.{tagName};");
         });
-        writer.WriteLine('}');
         writer.WriteLine();
     }
 
@@ -158,11 +150,9 @@ internal static class BaseGenerator
         var notNullWhenAttribute = canUseNotNullWhenAttribute ? "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] " : string.Empty;
         var questionMark = couldBeNull && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
         writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullTypeName}{questionMark} value)");
-        writer.WriteLine('{');
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine($"if (tag == Tag.{tagName})");
-            writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
             {
                 if (canUseNotNullWhenAttribute)
@@ -176,12 +166,10 @@ internal static class BaseGenerator
 
                 writer.WriteLine("return true;");
             });
-            writer.WriteLine('}');
             writer.WriteLine();
             writer.WriteLine("value = default;");
             writer.WriteLine("return false;");
         });
-        writer.WriteLine('}');
         writer.WriteLine();
     }
 
@@ -200,18 +188,15 @@ internal static class BaseGenerator
             var fullTypeName = GetFullTypeNameWithGenerics(data.Name, data.Generics.Array);
 
             writer.WriteLine($"public static {fullTypeName} From{tag}({type.FullTypeName} value)");
-            writer.WriteLine('{');
             writer.WriteIndentedBlock(writer =>
             {
                 if (type.AllowNullableInFromMethods == ParsedType.AllowNullableType.ExplicitNoThrowIfNull)
                 {
                     writer.WriteLine("if (value is null)");
-                    writer.WriteLine('{');
                     writer.WriteIndentedBlock(writer =>
                     {
                         writer.WriteLine("throw new System.ArgumentNullException(nameof(value));");
                     });
-                    writer.WriteLine('}');
                     writer.WriteLine();
                 }
 
@@ -237,7 +222,6 @@ internal static class BaseGenerator
 
                 writer.WriteLine(");");
             });
-            writer.WriteLine('}');
             writer.WriteLine();
         }
     }
@@ -268,11 +252,9 @@ internal static class BaseGenerator
         }
 
         writer.WriteLine(")");
-        writer.WriteLine("{");
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine("switch (tag)");
-            writer.WriteLine("{");
             writer.WriteIndentedBlock((writer) =>
             {
                 foreach (var type in data.Types.Array)
@@ -293,12 +275,10 @@ internal static class BaseGenerator
                 writer.WriteIndentedBlock((writer) =>
                 {
                     writer.WriteLine("""throw new NamedDiscriminatedUnions.Generator.Exceptions.UnknownTagException($"Unknown tag = {this.tag}");""");
-                });
+                }, wrapWithBraces: false);
             });
-            writer.WriteLine("}");
         });
 
-        writer.WriteLine("}");
         writer.WriteLine();
     }
 }
