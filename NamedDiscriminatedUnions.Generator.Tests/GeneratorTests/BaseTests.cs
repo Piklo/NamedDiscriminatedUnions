@@ -80,4 +80,108 @@ public static class BaseTests
 
         str.Should().Be(expected);
     }
+
+    [Theory]
+    [MemberData(nameof(AppendTagsEnumParameters))]
+    internal static void AppendTagsEnum(ParsedType[] types, string expected)
+    {
+        using var writer = Helper.GetIndentedTextWriter();
+
+        BaseGenerator.AppendTagsEnum(writer, types);
+        var str = writer.InnerWriter.ToString();
+
+        str.Should().Be(expected);
+    }
+
+    public static IEnumerable<object[]> AppendTagsEnumParameters()
+    {
+        yield return new object[] { new ParsedType[] { new(default!, "value", default, default, default, default, default), }, """
+            public enum Tag : byte
+            {
+                Value = 1,
+            }
+
+
+            """ };
+        yield return new object[] { new ParsedType[]
+        {
+            new(default!, "_value", default, default, default, default, default),
+        }, """
+            public enum Tag : byte
+            {
+                _value = 1,
+            }
+
+
+            """ };
+
+        yield return new object[] { new ParsedType[]
+        {
+            new(default!, "_value", default, default, default, default, default),
+            new(default!, "value2", default, default, default, default, default),
+            new(default!, "FuNnYVaLuE", default, default, default, default, default),
+        }, """
+            public enum Tag : byte
+            {
+                _value = 1,
+                Value2 = 2,
+                FuNnYVaLuE = 3,
+            }
+
+
+            """ };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetTagNameParameters))]
+    internal static void GetTagName(ParsedType type, string expected)
+    {
+        var str = BaseGenerator.GetTagName(type);
+
+        str.Should().Be(expected);
+    }
+
+    public static IEnumerable<object[]> GetTagNameParameters()
+    {
+        yield return new object[] { new ParsedType(default!, "value", default, default, default, default, default), "Value" };
+        yield return new object[] { new ParsedType(default!, "Value", default, default, default, default, default), "Value" };
+        yield return new object[] { new ParsedType(default!, "vALuE", default, default, default, default, default), "VALuE" };
+    }
+
+    [Fact]
+    public static void AppendFields()
+    {
+        using var writer = Helper.GetIndentedTextWriter();
+
+        BaseGenerator.AppendFields(writer);
+        var str = writer.InnerWriter.ToString();
+
+        str.Should().Be("""
+            private readonly Tag tag;
+
+
+            """);
+    }
+
+    [Theory]
+    [MemberData(nameof(CouldBeNullParameters))]
+    internal static void CouldBeNull(ParsedType type, bool expected)
+    {
+        var res = BaseGenerator.CouldBeNull(type);
+
+        res.Should().Be(expected);
+    }
+
+    public static IEnumerable<object[]> CouldBeNullParameters()
+    {
+        yield return new object[] { new ParsedType("int", default!, true, false, default, default, default), false };
+        yield return new object[] { new ParsedType("int?", default!, true, false, default, default, default), true };
+        yield return new object[] { new ParsedType("System.Collections.Generic.HashSet<int>", default!, false, true, default, default, default), true };
+        yield return new object[] { new ParsedType("System.Collections.Generic.HashSet<int>?", default!, false, true, default, default, default), true };
+        yield return new object[] { new ParsedType("T", default!, false, false, true, default, default), true }; // no constraints
+        yield return new object[] { new ParsedType("T", default!, true, false, true, default, default), false }; // where T : struct
+        yield return new object[] { new ParsedType("T?", default!, true, false, true, default, default), true }; // where T : struct
+        yield return new object[] { new ParsedType("T", default!, false, true, true, default, default), true }; // where T : class
+        yield return new object[] { new ParsedType("T?", default!, false, true, true, default, default), true }; // where T : class
+    }
 }

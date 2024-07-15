@@ -22,8 +22,8 @@ internal static class BaseGenerator
         AppendDeclaration(writer, data.Name, data.Generics.Array);
         writer.WriteIndentedBlock((writer) =>
         {
-            AppendTags(writer, data);
-            AppendFields(writer, data);
+            AppendTagsEnum(writer, data.Types.Array);
+            AppendFields(writer);
             AppendConstructor(writer, data);
             AppendIsTypeMethods(writer, data);
             AppendFromTypeMethods(writer, data);
@@ -67,14 +67,14 @@ internal static class BaseGenerator
         return $"{typeName}{genericsStr}";
     }
 
-    private static void AppendTags(IndentedTextWriter writer, DiscriminatedUnionData data)
+    internal static void AppendTagsEnum(IndentedTextWriter writer, ParsedType[] types)
     {
         writer.WriteLine("public enum Tag : byte");
         writer.WriteIndentedBlock((writer) =>
         {
-            for (var i = 0; i < data.Types.Array.Length; i++)
+            for (var i = 0; i < types.Length; i++)
             {
-                var type = data.Types.Array[i];
+                var type = types[i];
                 var tagName = GetTagName(type);
                 writer.WriteLine($"{tagName} = {i + 1},");
             }
@@ -82,7 +82,7 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    private static string GetTagName(ParsedType type)
+    internal static string GetTagName(ParsedType type)
     {
         var first = char.ToUpper(type.FieldName[0]);
         var tagName = first + type.FieldName.Substring(1);
@@ -90,7 +90,7 @@ internal static class BaseGenerator
         return tagName;
     }
 
-    private static void AppendFields(IndentedTextWriter writer, DiscriminatedUnionData data)
+    internal static void AppendFields(IndentedTextWriter writer)
     {
         writer.WriteLine("private readonly Tag tag;");
         writer.WriteLine();
@@ -173,7 +173,7 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    private static bool CouldBeNull(ParsedType type)
+    internal static bool CouldBeNull(ParsedType type)
     {
         return type.FullTypeName.EndsWith("?") || !type.IsValueType;
     }
