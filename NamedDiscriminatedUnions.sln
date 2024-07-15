@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Generator", "NamedDiscriminatedUnions.Generator\NamedDiscriminatedUnions.Generator.csproj", "{ECE1A09C-C34C-4C20-8B78-7583866EA9CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions", "NamedDiscriminatedUnions.Generator\NamedDiscriminatedUnions.csproj", "{ECE1A09C-C34C-4C20-8B78-7583866EA9CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Example", "NamedDiscriminatedUnions.Example\NamedDiscriminatedUnions.Example.csproj", "{79FA301C-F198-4012-9D3D-4034BFD24BAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Generator.Tests", "NamedDiscriminatedUnions.Generator.Tests\NamedDiscriminatedUnions.Generator.Tests.csproj", "{12634EDD-F531-4E65-9395-FF343CE2410F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Tests", "NamedDiscriminatedUnions.Generator.Tests\NamedDiscriminatedUnions.Tests.csproj", "{12634EDD-F531-4E65-9395-FF343CE2410F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Extensions", "NamedDiscriminatedUnions.Extensions\NamedDiscriminatedUnions.Extensions.csproj", "{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}"
 EndProject
