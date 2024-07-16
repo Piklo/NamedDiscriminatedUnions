@@ -1,4 +1,5 @@
 ﻿using NamedDiscriminatedUnions.Generators;
+using Xunit.Abstractions;
 
 namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests;
 
@@ -82,45 +83,58 @@ public static class BaseTests
     }
 
     [Theory]
-    [MemberData(nameof(AppendTagsEnumParameters))]
-    internal static void AppendTagsEnum(ParsedType[] types, string expected)
+    [MemberData(nameof(GetAppendTagsEnumParameters))]
+    internal static void AppendTagsEnum(AppendTagsEnumParameters parameters)
     {
+        var types = new ParsedType[parameters.FieldNames.Length];
+        for (var i = 0; i < parameters.FieldNames.Length; i++)
+        {
+            types[i] = new ParsedType() { FieldName = parameters.FieldNames[i] };
+        }
         using var writer = Helper.GetIndentedTextWriter();
 
         BaseGenerator.AppendTagsEnum(writer, types);
         var str = writer.InnerWriter.ToString();
 
-        str.Should().Be(expected);
+        str.Should().Be(parameters.Expected);
     }
 
-    public static IEnumerable<object[]> AppendTagsEnumParameters()
+    public record struct AppendTagsEnumParameters(string[] FieldNames, string Expected) : IXunitSerializable
     {
-        yield return new object[] { new ParsedType[] { new(default!, "value", default, default, default, default, default), }, """
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FieldNames = info.GetValue<string[]>(nameof(FieldNames));
+            Expected = info.GetValue<string>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FieldNames), FieldNames);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<AppendTagsEnumParameters> GetAppendTagsEnumParameters()
+    {
+        return new()
+        {
+            new (["value"],"""
             public enum Tag : byte
             {
                 Value = 1,
             }
 
 
-            """ };
-        yield return new object[] { new ParsedType[]
-        {
-            new(default!, "_value", default, default, default, default, default),
-        }, """
+            """),
+            new (["_value"],"""
             public enum Tag : byte
             {
                 _value = 1,
             }
 
 
-            """ };
-
-        yield return new object[] { new ParsedType[]
-        {
-            new(default!, "_value", default, default, default, default, default),
-            new(default!, "value2", default, default, default, default, default),
-            new(default!, "FuNnYVaLuE", default, default, default, default, default),
-        }, """
+            """),
+            new (["_value", "value2", "FuNnYVaLuE"],"""
             public enum Tag : byte
             {
                 _value = 1,
@@ -129,23 +143,43 @@ public static class BaseTests
             }
 
 
-            """ };
+            """),
+        };
     }
 
     [Theory]
-    [MemberData(nameof(GetTagNameParameters))]
-    internal static void GetTagName(ParsedType type, string expected)
+    [MemberData(nameof(GetGetTagNameParameters))]
+    internal static void GetTagName(GetTagNameParameters parameters)
     {
+        var type = new ParsedType() { FieldName = parameters.FieldName };
         var str = BaseGenerator.GetTagName(type);
 
-        str.Should().Be(expected);
+        str.Should().Be(parameters.Expected);
     }
 
-    public static IEnumerable<object[]> GetTagNameParameters()
+    public record struct GetTagNameParameters(string FieldName, string Expected) : IXunitSerializable
     {
-        yield return new object[] { new ParsedType(default!, "value", default, default, default, default, default), "Value" };
-        yield return new object[] { new ParsedType(default!, "Value", default, default, default, default, default), "Value" };
-        yield return new object[] { new ParsedType(default!, "vALuE", default, default, default, default, default), "VALuE" };
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FieldName = info.GetValue<string>(nameof(FieldName));
+            Expected = info.GetValue<string>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FieldName), FieldName);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<GetTagNameParameters> GetGetTagNameParameters()
+    {
+        return new()
+        {
+            new GetTagNameParameters("value", "Value"),
+            new GetTagNameParameters("Value", "Value"),
+            new GetTagNameParameters("vALuE", "VALuE"),
+        };
     }
 
     [Fact]
@@ -164,24 +198,48 @@ public static class BaseTests
     }
 
     [Theory]
-    [MemberData(nameof(CouldBeNullParameters))]
-    internal static void CouldBeNull(ParsedType type, bool expected)
+    [MemberData(nameof(GetCouldBeNullParameters))]
+    internal static void CouldBeNull(CouldBeNullParameters parameters)
     {
+        var type = new ParsedType() { FullTypeName = parameters.FullTypeName, IsValueType = parameters.IsValueType, IsReferenceType = parameters.IsReferenceType };
+
         var res = BaseGenerator.CouldBeNull(type);
 
-        res.Should().Be(expected);
+        res.Should().Be(parameters.Expected);
     }
 
-    public static IEnumerable<object[]> CouldBeNullParameters()
+    public record struct CouldBeNullParameters(string FullTypeName, bool IsValueType, bool IsReferenceType, bool Expected) : IXunitSerializable
     {
-        yield return new object[] { new ParsedType("int", default!, true, false, default, default, default), false };
-        yield return new object[] { new ParsedType("int?", default!, true, false, default, default, default), true };
-        yield return new object[] { new ParsedType("System.Collections.Generic.HashSet<int>", default!, false, true, default, default, default), true };
-        yield return new object[] { new ParsedType("System.Collections.Generic.HashSet<int>?", default!, false, true, default, default, default), true };
-        yield return new object[] { new ParsedType("T", default!, false, false, true, default, default), true }; // no constraints
-        yield return new object[] { new ParsedType("T", default!, true, false, true, default, default), false }; // where T : struct
-        yield return new object[] { new ParsedType("T?", default!, true, false, true, default, default), true }; // where T : struct
-        yield return new object[] { new ParsedType("T", default!, false, true, true, default, default), true }; // where T : class
-        yield return new object[] { new ParsedType("T?", default!, false, true, true, default, default), true }; // where T : class
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FullTypeName = info.GetValue<string>(nameof(FullTypeName));
+            IsValueType = info.GetValue<bool>(nameof(IsValueType));
+            IsReferenceType = info.GetValue<bool>(nameof(IsReferenceType));
+            Expected = info.GetValue<bool>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FullTypeName), FullTypeName);
+            info.AddValue(nameof(IsValueType), IsValueType);
+            info.AddValue(nameof(IsReferenceType), IsReferenceType);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<CouldBeNullParameters> GetCouldBeNullParameters()
+    {
+        return new()
+        {
+            { new ("int", true, false, false) },
+            { new ("int?", true, false, true) },
+            { new ("System.Collections.Generic.HashSet<int>", false, true, true) },
+            { new ("System.Collections.Generic.HashSet<int>?", false, true, true) },
+            { new ("T", false, false, true) }, // no constraints
+            { new ("T", true, false, false) }, // where T : struct
+            { new ("T?", true, false, true) }, // where T : struct
+            { new ("T", false, true, true) }, // where T : class
+            { new ("T?", false, true, true) }, // where T : class
+        };
     }
 }
