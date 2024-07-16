@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NamedDiscriminatedUnions\NamedDiscriminatedUnions.csproj" OutputItemType="Analyzer" />
-    <!--<ProjectReference Include="..\NamedDiscriminatedUnions\NamedDiscriminatedUnions.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />-->
+    <ProjectReference Include="..\NamedDiscriminatedUnions.Includables\NamedDiscriminatedUnions.Includables.csproj" />
+    <!--<ProjectReference Include="..\NamedDiscriminatedUnions\NamedDiscriminatedUnions.csproj" OutputItemType="Analyzer" />-->
+    <ProjectReference Include="..\NamedDiscriminatedUnions\NamedDiscriminatedUnions.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>

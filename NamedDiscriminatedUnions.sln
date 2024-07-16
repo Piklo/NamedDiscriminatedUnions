@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Extensions", "NamedDiscriminatedUnions.Extensions\NamedDiscriminatedUnions.Extensions.csproj", "{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NamedDiscriminatedUnions.Includables", "NamedDiscriminatedUnions.Includables\NamedDiscriminatedUnions.Includables.csproj", "{987DEDFF-6E04-4389-B7DE-BA634DFF3A8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91E1CC23-7CDC-4FA8-83C3-DAB01F95C936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{987DEDFF-6E04-4389-B7DE-BA634DFF3A8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{987DEDFF-6E04-4389-B7DE-BA634DFF3A8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{987DEDFF-6E04-4389-B7DE-BA634DFF3A8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{987DEDFF-6E04-4389-B7DE-BA634DFF3A8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
