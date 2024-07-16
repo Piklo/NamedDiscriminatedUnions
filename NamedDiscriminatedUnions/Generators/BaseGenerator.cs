@@ -24,7 +24,7 @@ internal static class BaseGenerator
         {
             AppendTagsEnum(writer, data.Types.Array);
             AppendFields(writer);
-            AppendConstructor(writer, data);
+            AppendConstructor(writer, data.Name, data.Types.Array);
             AppendIsTypeMethods(writer, data);
             AppendFromTypeMethods(writer, data);
             AppendMatchMethod(writer, data);
@@ -95,31 +95,54 @@ internal static class BaseGenerator
         writer.WriteLine("private readonly Tag tag;");
         writer.WriteLine();
     }
-
-    private static void AppendConstructor(IndentedTextWriter writer, DiscriminatedUnionData data)
+    internal static void AppendConstructor<T>(IndentedTextWriter writer, string typeName, T[] types)
+        where T : IConstructorParameters
     {
-        writer.Write($"private {data.Name}(Tag tag, ");
-        for (var i = 0; i < data.Types.Array.Length; i++)
+        AppendConstructorDeclaration(writer, typeName, types);
+        AppendConstructorBody(writer, types);
+        writer.WriteLine();
+    }
+
+    internal static void AppendConstructorDeclaration<T>(IndentedTextWriter writer, string typeName, T[] types)
+        where T : IConstructorParameters
+    {
+        writer.Write($"private {typeName}(Tag tag, ");
+        for (var i = 0; i < types.Length; i++)
         {
-            var type = data.Types.Array[i];
-            var questionMark = CouldBeNull(type) && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
-            writer.Write($"{type.FullTypeName}{questionMark} {type.FieldName}");
-            if (i + 1 < data.Types.Array.Length)
+            var type = types[i];
+            var parameterType = GetConstructorParameterTypeString(type);
+            writer.Write($"{parameterType} {type.FieldName}");
+
+            if (i + 1 < types.Length)
             {
                 writer.Write(", ");
             }
         }
-
         writer.WriteLine(")");
+    }
+
+    internal static string GetConstructorParameterTypeString<T>(T type)
+        where T : IConstructorParameters
+    {
+        if (CouldBeNull(type) && !type.FullTypeName.EndsWith("?"))
+        {
+            return $"{type.FullTypeName}?";
+        }
+
+        return type.FullTypeName;
+    }
+
+    internal static void AppendConstructorBody<T>(IndentedTextWriter writer, T[] types)
+        where T : IConstructorParameters
+    {
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine("this.tag = tag;");
-            foreach (var type in data.Types.Array)
+            foreach (var type in types)
             {
                 writer.WriteLine($"this.{type.FieldName} = {type.FieldName};");
             }
         });
-        writer.WriteLine();
     }
 
     private static void AppendIsTypeMethods(IndentedTextWriter writer, DiscriminatedUnionData data)
@@ -173,7 +196,8 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    internal static bool CouldBeNull(ParsedType type)
+    internal static bool CouldBeNull<T>(T type)
+        where T : ICouldBeNull
     {
         return type.FullTypeName.EndsWith("?") || !type.IsValueType;
     }
