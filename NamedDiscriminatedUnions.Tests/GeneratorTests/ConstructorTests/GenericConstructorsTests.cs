@@ -1,4 +1,6 @@
-﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+﻿using NamedDiscriminatedUnions.Tests;
+
+namespace NamedDiscriminatedUnions.Tests.GeneratorTests.ConstructorTests;
 
 public static class GenericConstructorsTests
 {    /// <summary>

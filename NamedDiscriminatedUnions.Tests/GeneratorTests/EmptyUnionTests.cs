@@ -1,4 +1,4 @@
-﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests;
+﻿namespace NamedDiscriminatedUnions.Tests.GeneratorTests;
 
 public static class EmptyUnionTests
 {

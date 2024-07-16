@@ -1,6 +1,6 @@
 ﻿using System.CodeDom.Compiler;
 
-namespace NamedDiscriminatedUnions.Generator.Tests;
+namespace NamedDiscriminatedUnions.Tests;
 internal static class Helper
 {
     public static IndentedTextWriter GetIndentedTextWriter()

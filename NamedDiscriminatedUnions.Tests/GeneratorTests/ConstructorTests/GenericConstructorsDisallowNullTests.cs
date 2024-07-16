@@ -1,4 +1,6 @@
-﻿namespace NamedDiscriminatedUnions.Generator.Tests.GeneratorTests.ConstructorTests;
+﻿using NamedDiscriminatedUnions.Tests;
+
+namespace NamedDiscriminatedUnions.Tests.GeneratorTests.ConstructorTests;
 
 /// <summary>
 /// despite "disallowing null" constructors should allow null (if necessary), since we only pass one of the parameters with non default value
