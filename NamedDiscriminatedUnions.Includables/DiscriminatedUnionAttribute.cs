@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NamedDiscriminatedUnions.Attributes;
+namespace NamedDiscriminatedUnions;
 
 [AttributeUsage(AttributeTargets.Struct)]
 public sealed class DiscriminatedUnionAttribute : Attribute

@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NamedDiscriminatedUnions.Attributes;
 
 namespace NamedDiscriminatedUnions.Generator.Tests;
 

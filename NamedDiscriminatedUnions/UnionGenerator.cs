@@ -30,7 +30,7 @@ internal class UnionGenerator : IIncrementalGenerator
     {
         var discriminatedUnionData =
             context.SyntaxProvider.ForAttributeWithMetadataName(
-                "NamedDiscriminatedUnions.Attributes.DiscriminatedUnionAttribute",
+                "NamedDiscriminatedUnions.DiscriminatedUnionAttribute",
                 IsRightNode,
                 ParseDiscriminatedUnionData);
 
@@ -182,7 +182,7 @@ internal class UnionGenerator : IIncrementalGenerator
         foreach (var attribute in attributes)
         {
             var attributeFullName = attribute.AttributeClass?.ToString();
-            if (attributeFullName != "NamedDiscriminatedUnions.Attributes.DisallowNullAttribute")
+            if (attributeFullName != "NamedDiscriminatedUnions.DisallowNullAttribute")
             {
                 continue;
             }

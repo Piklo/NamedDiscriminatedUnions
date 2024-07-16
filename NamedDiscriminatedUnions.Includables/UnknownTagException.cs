@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NamedDiscriminatedUnions.Generator.Exceptions;
+namespace NamedDiscriminatedUnions;
 
 public class UnknownTagException : Exception
 {

@@ -274,7 +274,7 @@ internal static class BaseGenerator
                 writer.WriteLine($"default:");
                 writer.WriteIndentedBlock((writer) =>
                 {
-                    writer.WriteLine("""throw new NamedDiscriminatedUnions.Generator.Exceptions.UnknownTagException($"Unknown tag = {this.tag}");""");
+                    writer.WriteLine("""throw new NamedDiscriminatedUnions.UnknownTagException($"Unknown tag = {this.tag}");""");
                 }, wrapWithBraces: false);
             });
         });

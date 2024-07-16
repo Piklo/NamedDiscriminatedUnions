@@ -1,5 +1,4 @@
-﻿using NamedDiscriminatedUnions.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace NamedDiscriminatedUnions.Example;
 

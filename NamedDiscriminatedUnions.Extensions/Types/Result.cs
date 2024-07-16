@@ -1,6 +1,4 @@
-﻿using NamedDiscriminatedUnions.Attributes;
-
-namespace NamedDiscriminatedUnions.Types;
+﻿namespace NamedDiscriminatedUnions.Types;
 
 [DiscriminatedUnion]
 public readonly partial struct Result<T, E>

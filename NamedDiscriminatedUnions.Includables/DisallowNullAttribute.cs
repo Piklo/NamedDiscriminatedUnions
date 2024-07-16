@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NamedDiscriminatedUnions.Attributes;
+namespace NamedDiscriminatedUnions;
 
 [AttributeUsage(AttributeTargets.Field)]
 public sealed class DisallowNullAttribute : Attribute
