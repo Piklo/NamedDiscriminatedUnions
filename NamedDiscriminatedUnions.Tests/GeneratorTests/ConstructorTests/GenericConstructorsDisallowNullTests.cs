@@ -12,7 +12,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NotNullableGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -34,7 +34,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NullableGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -56,7 +56,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NotNullableStructGenericParameterTypeIsNotNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -79,7 +79,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NullableStructGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
 
                     namespace TestNamespace;
 
@@ -102,7 +102,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NotNullableClassGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
 
                     namespace TestNamespace;
 
@@ -125,7 +125,7 @@ public static class GenericConstructorsDisallowNullTests
     public static void NullableClassGenericParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 

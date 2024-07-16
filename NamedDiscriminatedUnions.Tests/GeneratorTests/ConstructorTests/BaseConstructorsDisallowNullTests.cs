@@ -9,7 +9,7 @@ public static class BaseConstructorsDisallowNullTests
     public static void NotNullableValueTypeParameterIsNotNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -31,7 +31,7 @@ public static class BaseConstructorsDisallowNullTests
     public static void NullableValueTypeParameterIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -53,7 +53,7 @@ public static class BaseConstructorsDisallowNullTests
     public static void NotNullableReferenceParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
@@ -75,7 +75,7 @@ public static class BaseConstructorsDisallowNullTests
     public static void NullableReferenceParameterTypeIsNullableDisallowNull()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 

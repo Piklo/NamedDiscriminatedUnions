@@ -6,7 +6,7 @@ public static class EmptyUnionTests
     public static void EmptyUnionGeneratesNothing()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 

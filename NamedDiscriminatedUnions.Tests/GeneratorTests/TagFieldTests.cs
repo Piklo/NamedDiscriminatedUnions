@@ -6,7 +6,7 @@ public static class TagFieldTests
     public static void FieldEnumGeneratesCorrectly()
     {
         const string source = """
-                    using NamedDiscriminatedUnions.Attributes;
+                    using NamedDiscriminatedUnions;
                                         
                     namespace TestNamespace;
 
