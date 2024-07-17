@@ -78,4 +78,39 @@ public static class TagEnumTests
             """),
         };
     }
+
+
+    [Theory]
+    [MemberData(nameof(GetGetTagNameParameters))]
+    internal static void GetTagName(GetTagNameParameters parameters)
+    {
+        var str = BaseGenerator.GetTagName(parameters.TagEnumData);
+
+        str.Should().Be(parameters.Expected);
+    }
+
+    public record struct GetTagNameParameters(TagEnumData TagEnumData, string Expected) : IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            TagEnumData = info.GetValue<TagEnumData>(nameof(TagEnumData));
+            Expected = info.GetValue<string>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(TagEnumData), TagEnumData);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<GetTagNameParameters> GetGetTagNameParameters()
+    {
+        return new()
+        {
+            new GetTagNameParameters(new("value"), "Value"),
+            new GetTagNameParameters(new("Value"), "Value"),
+            new GetTagNameParameters(new("vALuE"), "VALuE"),
+        };
+    }
 }

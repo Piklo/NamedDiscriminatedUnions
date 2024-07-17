@@ -82,41 +82,6 @@ public static class BaseTests
         str.Should().Be(expected);
     }
 
-    [Theory]
-    [MemberData(nameof(GetGetTagNameParameters))]
-    internal static void GetTagName(GetTagNameParameters parameters)
-    {
-        var type = new ParsedType() { FieldName = parameters.FieldName };
-        var str = BaseGenerator.GetTagName(type);
-
-        str.Should().Be(parameters.Expected);
-    }
-
-    public record struct GetTagNameParameters(string FieldName, string Expected) : IXunitSerializable
-    {
-        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
-        {
-            FieldName = info.GetValue<string>(nameof(FieldName));
-            Expected = info.GetValue<string>(nameof(Expected));
-        }
-
-        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
-        {
-            info.AddValue(nameof(FieldName), FieldName);
-            info.AddValue(nameof(Expected), Expected);
-        }
-    }
-
-    public static TheoryData<GetTagNameParameters> GetGetTagNameParameters()
-    {
-        return new()
-        {
-            new GetTagNameParameters("value", "Value"),
-            new GetTagNameParameters("Value", "Value"),
-            new GetTagNameParameters("vALuE", "VALuE"),
-        };
-    }
-
     [Fact]
     public static void AppendFields()
     {
