@@ -1,6 +1,5 @@
 ﻿namespace NamedDiscriminatedUnions.Generators;
 
-internal interface IIsTypeMethodOut : ITagEnumData, ICouldBeNull
+internal interface IIsTypeMethodOut : ITagEnumData, ICouldBeNull, INotNullAttribute
 {
-    AllowNullableType AllowNullableInFromMethods { get; }
 }

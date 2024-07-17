@@ -216,7 +216,7 @@ internal static class BaseGenerator
     }
 
     internal static bool CanUseNotNullWhenAttribute<T>(T type)
-        where T : IIsTypeMethodOut
+        where T : INotNullAttribute
     {
         return CouldBeNull(type) && type.AllowNullableInFromMethods == AllowNullableType.ExplicitNoThrowIfNull;
     }

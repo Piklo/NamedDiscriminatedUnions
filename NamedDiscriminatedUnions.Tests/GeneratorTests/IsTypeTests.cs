@@ -60,4 +60,89 @@ public static class IsTypeTests
             """)
         };
     }
+
+    public record struct NotNullAttribute(string FullTypeName, bool IsValueType, AllowNullableType AllowNullableInFromMethods) : INotNullAttribute, IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FullTypeName = info.GetValue<string>(nameof(FullTypeName));
+            IsValueType = info.GetValue<bool>(nameof(IsValueType));
+            AllowNullableInFromMethods = info.GetValue<AllowNullableType>(nameof(AllowNullableInFromMethods));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FullTypeName), FullTypeName);
+            info.AddValue(nameof(IsValueType), IsValueType);
+            info.AddValue(nameof(AllowNullableInFromMethods), AllowNullableInFromMethods);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetCanUseNotNullWhenAttributeParameters))]
+    public static void CanUseNotNullWhenAttribute(CanUseNotNullWhenAttributeParameter parameters)
+    {
+        var res = BaseGenerator.CanUseNotNullWhenAttribute(parameters.NotNullAttribute);
+
+        res.Should().Be(parameters.Expected);
+    }
+
+    public record struct CanUseNotNullWhenAttributeParameter(NotNullAttribute NotNullAttribute, bool Expected) : IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            NotNullAttribute = info.GetValue<NotNullAttribute>(nameof(NotNullAttribute));
+            Expected = info.GetValue<bool>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(NotNullAttribute), NotNullAttribute);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<CanUseNotNullWhenAttributeParameter> GetCanUseNotNullWhenAttributeParameters()
+    {
+        return new()
+        {
+            new(new("int", true, AllowNullableType.ImplicitNo), false),
+            new(new("int", true, AllowNullableType.ExplicitNo), false),
+            new(new("int", true, AllowNullableType.ExplicitNoThrowIfNull), false),
+            new(new("int?", true, AllowNullableType.ExplicitYes), false),
+            new(new("int?", true, AllowNullableType.ExplicitNo), false),
+            new(new("int?", true, AllowNullableType.ExplicitNoThrowIfNull), true),
+
+            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ImplicitYes), false),
+            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ExplicitNo), false),
+            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitYes), false),
+            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitNo), false),
+            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+
+            // no constraints
+            new(new("TAny", false, AllowNullableType.ImplicitYes), false),
+            new(new("TAny", false, AllowNullableType.ExplicitNo), false),
+            new(new("TAny", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+            new(new("TAny?", false, AllowNullableType.ExplicitYes), false),
+            new(new("TAny?", false, AllowNullableType.ExplicitNo), false),
+            new(new("TAny?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+
+            // where T : struct
+            new(new("TStruct", true, AllowNullableType.ImplicitNo), false),
+            new(new("TStruct", true, AllowNullableType.ExplicitNo), false),
+            new(new("TStruct", true, AllowNullableType.ExplicitNoThrowIfNull), false),
+            new(new("TStruct?", true, AllowNullableType.ExplicitYes), false),
+            new(new("TStruct?", true, AllowNullableType.ExplicitNo), false),
+            new(new("TStruct?", true, AllowNullableType.ExplicitNoThrowIfNull), true),
+
+            // where T : class
+            new(new("TClass", false, AllowNullableType.ImplicitYes), false),
+            new(new("TClass", false, AllowNullableType.ExplicitNo), false),
+            new(new("TClass", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+            new(new("TClass?", false, AllowNullableType.ExplicitYes), false),
+            new(new("TClass?", false, AllowNullableType.ExplicitNo), false),
+            new(new("TClass?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+        };
+    }
 }
