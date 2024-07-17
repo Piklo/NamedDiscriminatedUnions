@@ -161,4 +161,86 @@ public static class IsTypeTests
             res.Should().BeEmpty();
         }
     }
+
+    [Theory]
+    [MemberData(nameof(GetAppendIsTypeMethodWithOutParameters))]
+    public static void AppendIsTypeMethodWithOut(AppendIsTypeMethodWithOutParameter parameters)
+    {
+        using var writer = Helper.GetIndentedTextWriter();
+
+        BaseGenerator.AppendIsTypeMethodWithOut(writer, parameters.FieldName, parameters.TagName, parameters.ParameterType, parameters.CanUseNotNullWhenAttribute);
+        var str = writer.InnerWriter.ToString();
+
+        str.Should().Be(parameters.Expected);
+    }
+
+    public record struct AppendIsTypeMethodWithOutParameter(string FieldName, string TagName, string ParameterType, bool CanUseNotNullWhenAttribute, string Expected) : IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FieldName = info.GetValue<string>(nameof(FieldName));
+            TagName = info.GetValue<string>(nameof(TagName));
+            ParameterType = info.GetValue<string>(nameof(ParameterType));
+            CanUseNotNullWhenAttribute = info.GetValue<bool>(nameof(CanUseNotNullWhenAttribute));
+            Expected = info.GetValue<string>(nameof(Expected));
+        }
+
+        void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FieldName), FieldName);
+            info.AddValue(nameof(TagName), TagName);
+            info.AddValue(nameof(ParameterType), ParameterType);
+            info.AddValue(nameof(CanUseNotNullWhenAttribute), CanUseNotNullWhenAttribute);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<AppendIsTypeMethodWithOutParameter> GetAppendIsTypeMethodWithOutParameters()
+    {
+        return new()
+        {
+            new("value", "Value", "int", false,
+@"public readonly bool IsValue(out int value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+            new("value", "Value", "int?", false,
+@"public readonly bool IsValue(out int? value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+            new("value", "Value", "int?", true,
+@"public readonly bool IsValue([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out int? value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value!;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+        };
+    }
 }

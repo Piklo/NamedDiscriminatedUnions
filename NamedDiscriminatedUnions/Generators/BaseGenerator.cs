@@ -174,12 +174,17 @@ internal static class BaseGenerator
         where T : IIsTypeMethodOut
     {
         var tagName = GetTagName(type);
-        var notNullWhenAttribute = GetNotNullAttribute(type);
         var parameterType = GetParameterTypeString(type);
+        var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
+        AppendIsTypeMethodWithOut(writer, type.FieldName, tagName, parameterType, canUseNotNullWhenAttribute);
+    }
+
+    internal static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, string fieldName, string tagName, string parameterType, bool canUseNotNullWhenAttribute)
+    {
+        var notNullWhenAttribute = GetNotNullAttribute(canUseNotNullWhenAttribute);
 
         writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {parameterType} value)");
 
-        var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine($"if (tag == Tag.{tagName})");
@@ -187,11 +192,11 @@ internal static class BaseGenerator
             {
                 if (canUseNotNullWhenAttribute)
                 {
-                    writer.WriteLine($"value = this.{type.FieldName}!;"); /// we can use null forgiving because of <see cref="ParsedType.AllowNullableType.ExplicitNoThrowIfNull"/>
+                    writer.WriteLine($"value = this.{fieldName}!;"); /// we can use null forgiving because of <see cref="ParsedType.AllowNullableType.ExplicitNoThrowIfNull"/>
                 }
                 else
                 {
-                    writer.WriteLine($"value = this.{type.FieldName};");
+                    writer.WriteLine($"value = this.{fieldName};");
                 }
 
                 writer.WriteLine("return true;");
@@ -207,6 +212,11 @@ internal static class BaseGenerator
         where T : INotNullAttribute
     {
         var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
+        return GetNotNullAttribute(canUseNotNullWhenAttribute);
+    }
+
+    internal static string GetNotNullAttribute(bool canUseNotNullWhenAttribute)
+    {
         if (canUseNotNullWhenAttribute)
         {
             return "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ";
