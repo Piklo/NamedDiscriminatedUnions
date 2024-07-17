@@ -67,7 +67,8 @@ internal static class BaseGenerator
         return $"{typeName}{genericsStr}";
     }
 
-    internal static void AppendTagsEnum(IndentedTextWriter writer, ParsedType[] types)
+    internal static void AppendTagsEnum<T>(IndentedTextWriter writer, T[] types)
+        where T : ITagEnumData
     {
         writer.WriteLine("public enum Tag : byte");
         writer.WriteIndentedBlock((writer) =>
@@ -82,7 +83,8 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    internal static string GetTagName(ParsedType type)
+    internal static string GetTagName<T>(T type)
+        where T : ITagEnumData
     {
         var first = char.ToUpper(type.FieldName[0]);
         var tagName = first + type.FieldName.Substring(1);

@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace NamedDiscriminatedUnions;
 
-internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods) : IConstructorParameters, ICouldBeNull
+internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods) : IConstructorParameters, ICouldBeNull, ITagEnumData
 {
     public enum AllowNullableType
     {
