@@ -1,5 +1,4 @@
 ﻿using NamedDiscriminatedUnions.Generators;
-using Xunit.Abstractions;
 
 namespace NamedDiscriminatedUnions.Tests.GeneratorTests;
 
@@ -95,51 +94,5 @@ public static class BaseTests
 
 
             """);
-    }
-
-    [Theory]
-    [MemberData(nameof(GetCouldBeNullParameters))]
-    internal static void CouldBeNull(CouldBeNullParameters parameters)
-    {
-        var type = new ParsedType() { FullTypeName = parameters.FullTypeName, IsValueType = parameters.IsValueType, IsReferenceType = parameters.IsReferenceType };
-
-        var res = BaseGenerator.CouldBeNull(type);
-
-        res.Should().Be(parameters.Expected);
-    }
-
-    public record struct CouldBeNullParameters(string FullTypeName, bool IsValueType, bool IsReferenceType, bool Expected) : IXunitSerializable
-    {
-        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
-        {
-            FullTypeName = info.GetValue<string>(nameof(FullTypeName));
-            IsValueType = info.GetValue<bool>(nameof(IsValueType));
-            IsReferenceType = info.GetValue<bool>(nameof(IsReferenceType));
-            Expected = info.GetValue<bool>(nameof(Expected));
-        }
-
-        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
-        {
-            info.AddValue(nameof(FullTypeName), FullTypeName);
-            info.AddValue(nameof(IsValueType), IsValueType);
-            info.AddValue(nameof(IsReferenceType), IsReferenceType);
-            info.AddValue(nameof(Expected), Expected);
-        }
-    }
-
-    public static TheoryData<CouldBeNullParameters> GetCouldBeNullParameters()
-    {
-        return new()
-        {
-            { new ("int", true, false, false) },
-            { new ("int?", true, false, true) },
-            { new ("System.Collections.Generic.HashSet<int>", false, true, true) },
-            { new ("System.Collections.Generic.HashSet<int>?", false, true, true) },
-            { new ("T", false, false, true) }, // no constraints
-            { new ("T", true, false, false) }, // where T : struct
-            { new ("T?", true, false, true) }, // where T : struct
-            { new ("T", false, true, true) }, // where T : class
-            { new ("T?", false, true, true) }, // where T : class
-        };
     }
 }

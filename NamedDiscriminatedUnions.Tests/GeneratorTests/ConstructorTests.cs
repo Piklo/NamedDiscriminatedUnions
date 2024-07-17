@@ -194,8 +194,8 @@ public static class ConstructorTests
             new(new("int?", true), "int?"),
             new(new("System.Collections.Generic.HashSet<int>", false), "System.Collections.Generic.HashSet<int>?"),
             new(new("System.Collections.Generic.HashSet<int>?", false), "System.Collections.Generic.HashSet<int>?"),
-            new(new("T", false), "T?"), // no constraints
-            new(new("T?", false), "T?"), // no constraints
+            new(new("TAny", false), "TAny?"), // no constraints
+            new(new("TAny?", false), "TAny?"), // no constraints
             new(new("TStruct", true), "TStruct"), // where T : struct
             new(new("TStruct?", true), "TStruct?"), // where T : struct
             new(new("TClass", false), "TClass?"), // where T : class
