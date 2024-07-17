@@ -202,4 +202,75 @@ public static class ConstructorTests
             new(new("TClass?", false), "TClass?"), // where T : class
         };
     }
+
+    public record struct ConstructorBody(string FieldName) : IConstructorBody, IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FieldName = info.GetValue<string>(nameof(FieldName));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FieldName), FieldName);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAppendConstructorBodyParameters))]
+    public static void AppendConstructorBody(AppendConstructorBodyParameters parameters)
+    {
+        using var writer = Helper.GetIndentedTextWriter();
+
+        BaseGenerator.AppendConstructorBody(writer, parameters.ConstructorBodies);
+        var str = writer.InnerWriter.ToString();
+
+        str.Should().Be(parameters.Expected);
+    }
+
+    public record struct AppendConstructorBodyParameters(ConstructorBody[] ConstructorBodies, string Expected) : IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            ConstructorBodies = info.GetValue<ConstructorBody[]>(nameof(ConstructorBodies));
+            Expected = info.GetValue<string>(nameof(Expected));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(ConstructorBodies), ConstructorBodies);
+            info.AddValue(nameof(Expected), Expected);
+        }
+    }
+
+    public static TheoryData<AppendConstructorBodyParameters> GetAppendConstructorBodyParameters()
+    {
+        return new()
+        {
+            new (
+            [
+                new("field"),
+            ],
+            """
+            {
+                this.tag = tag;
+                this.field = field;
+            }
+
+            """),
+            new (
+            [
+                new("field1"),
+                new("field2"),
+            ],
+            """
+            {
+                this.tag = tag;
+                this.field1 = field1;
+                this.field2 = field2;
+            }
+
+            """),
+        };
+    }
 }

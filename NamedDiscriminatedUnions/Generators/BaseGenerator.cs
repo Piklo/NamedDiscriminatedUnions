@@ -136,7 +136,7 @@ internal static class BaseGenerator
     }
 
     internal static void AppendConstructorBody<T>(IndentedTextWriter writer, T[] types)
-        where T : IConstructorParameters
+        where T : IConstructorBody
     {
         writer.WriteIndentedBlock((writer) =>
         {
