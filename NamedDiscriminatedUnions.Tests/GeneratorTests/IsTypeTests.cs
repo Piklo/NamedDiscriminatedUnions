@@ -145,4 +145,20 @@ public static class IsTypeTests
             new(new("TClass?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
         };
     }
+
+    [Theory]
+    [MemberData(nameof(GetCanUseNotNullWhenAttributeParameters))]
+    public static void GetNotNullAttribute(CanUseNotNullWhenAttributeParameter parameters)
+    {
+        var res = BaseGenerator.GetNotNullAttribute(parameters.NotNullAttribute);
+
+        if (parameters.Expected)
+        {
+            res.Should().Be("[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ");
+        }
+        else
+        {
+            res.Should().BeEmpty();
+        }
+    }
 }

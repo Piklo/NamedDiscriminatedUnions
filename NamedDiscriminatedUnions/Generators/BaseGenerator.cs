@@ -174,7 +174,7 @@ internal static class BaseGenerator
         where T : IIsTypeMethodOut
     {
         var tagName = GetTagName(type);
-        var notNullWhenAttribute = GetNotNullParameter(type);
+        var notNullWhenAttribute = GetNotNullAttribute(type);
         var parameterType = GetParameterTypeString(type);
 
         writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {parameterType} value)");
@@ -203,8 +203,8 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    internal static string GetNotNullParameter<T>(T type)
-        where T : IIsTypeMethodOut
+    internal static string GetNotNullAttribute<T>(T type)
+        where T : INotNullAttribute
     {
         var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
         if (canUseNotNullWhenAttribute)
