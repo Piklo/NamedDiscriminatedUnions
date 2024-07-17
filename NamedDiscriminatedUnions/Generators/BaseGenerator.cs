@@ -25,7 +25,7 @@ internal static class BaseGenerator
             AppendTagsEnum(writer, data.Types.Array);
             AppendFields(writer);
             AppendConstructor(writer, data.Name, data.Types.Array);
-            AppendIsTypeMethods(writer, data);
+            AppendIsTypeMethods(writer, data.Types.Array);
             AppendFromTypeMethods(writer, data);
             AppendMatchMethod(writer, data);
             AppendSwitchMethod(writer, data);
@@ -113,7 +113,7 @@ internal static class BaseGenerator
         for (var i = 0; i < types.Length; i++)
         {
             var type = types[i];
-            var parameterType = GetConstructorParameterTypeString(type);
+            var parameterType = GetParameterTypeString(type);
             writer.Write($"{parameterType} {type.FieldName}");
 
             if (i + 1 < types.Length)
@@ -124,7 +124,7 @@ internal static class BaseGenerator
         writer.WriteLine(")");
     }
 
-    internal static string GetConstructorParameterTypeString<T>(T type)
+    internal static string GetParameterTypeString<T>(T type)
         where T : ICouldBeNull
     {
         if (CouldBeNull(type) && !type.FullTypeName.EndsWith("?"))
@@ -148,16 +148,18 @@ internal static class BaseGenerator
         });
     }
 
-    private static void AppendIsTypeMethods(IndentedTextWriter writer, DiscriminatedUnionData data)
+    internal static void AppendIsTypeMethods<T>(IndentedTextWriter writer, T[] types)
+        where T : IIsTypeMethodOut
     {
-        foreach (var type in data.Types.Array)
+        foreach (var type in types)
         {
             AppendIsTypeMethodWithoutOut(writer, type);
             AppendIsTypeMethodWithOut(writer, type);
         }
     }
 
-    private static void AppendIsTypeMethodWithoutOut(IndentedTextWriter writer, ParsedType type)
+    internal static void AppendIsTypeMethodWithoutOut<T>(IndentedTextWriter writer, T type)
+        where T : ITagEnumData
     {
         var tagName = GetTagName(type);
         writer.WriteLine($"public readonly bool Is{tagName}()");
@@ -168,14 +170,16 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
-    private static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, ParsedType type)
+    internal static void AppendIsTypeMethodWithOut<T>(IndentedTextWriter writer, T type)
+        where T : IIsTypeMethodOut
     {
         var tagName = GetTagName(type);
-        var couldBeNull = CouldBeNull(type);
-        var canUseNotNullWhenAttribute = couldBeNull && type.AllowNullableInFromMethods == ParsedType.AllowNullableType.ExplicitNoThrowIfNull;
-        var notNullWhenAttribute = canUseNotNullWhenAttribute ? "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] " : string.Empty;
-        var questionMark = couldBeNull && !type.FullTypeName.EndsWith("?") ? "?" : string.Empty;
-        writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullTypeName}{questionMark} value)");
+        var notNullWhenAttribute = GetNotNullParameter(type);
+        var parameterType = GetParameterTypeString(type);
+
+        writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {parameterType} value)");
+
+        var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine($"if (tag == Tag.{tagName})");
@@ -199,6 +203,24 @@ internal static class BaseGenerator
         writer.WriteLine();
     }
 
+    internal static string GetNotNullParameter<T>(T type)
+        where T : IIsTypeMethodOut
+    {
+        var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
+        if (canUseNotNullWhenAttribute)
+        {
+            return "[System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ";
+        }
+
+        return string.Empty;
+    }
+
+    internal static bool CanUseNotNullWhenAttribute<T>(T type)
+        where T : IIsTypeMethodOut
+    {
+        return CouldBeNull(type) && type.AllowNullableInFromMethods == AllowNullableType.ExplicitNoThrowIfNull;
+    }
+
     internal static bool CouldBeNull<T>(T type)
         where T : ICouldBeNull
     {
@@ -217,7 +239,7 @@ internal static class BaseGenerator
             writer.WriteLine($"public static {fullTypeName} From{tag}({type.FullTypeName} value)");
             writer.WriteIndentedBlock(writer =>
             {
-                if (type.AllowNullableInFromMethods == ParsedType.AllowNullableType.ExplicitNoThrowIfNull)
+                if (type.AllowNullableInFromMethods == AllowNullableType.ExplicitNoThrowIfNull)
                 {
                     writer.WriteLine("if (value is null)");
                     writer.WriteIndentedBlock(writer =>

@@ -9,20 +9,6 @@ using System.Threading;
 
 namespace NamedDiscriminatedUnions;
 
-internal readonly record struct ParsedType(string FullTypeName, string FieldName, bool IsValueType, bool IsReferenceType, bool IsGeneric, bool ContainsGeneric, ParsedType.AllowNullableType AllowNullableInFromMethods) : IConstructorParameters, ICouldBeNull, ITagEnumData
-{
-    public enum AllowNullableType
-    {
-        ImplicitNo, // value type without '?'
-        ImplicitYes, // not value type without '?' and without DisallowNullAttribute
-        ExplicitNo, // DisallowNullAttribute(false)
-        ExplicitNoThrowIfNull, // DisallowNullAttribute(true)
-        ExplicitYes, // type with '?' without DisallowNullAttribute
-    }
-}
-
-internal readonly record struct DiscriminatedUnionData(string Name, string FullNamespace, EquatableArray<string> Generics, EquatableArray<ParsedType> Types, bool IsRefStruct);
-
 [Generator]
 internal class UnionGenerator : IIncrementalGenerator
 {
@@ -144,33 +130,33 @@ internal class UnionGenerator : IIncrementalGenerator
         return IsGeneric(type) || ContainsGeneric(type);
     }
 
-    private static ParsedType.AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isReferenceType)
+    private static AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isReferenceType)
     {
         var containsQuestionMark = fullTypeName.EndsWith("?");
         var (attributeFound, attributeValue) = GetAllowNullableAttributeData(field);
 
         if (isValueType && !containsQuestionMark)
         {
-            return ParsedType.AllowNullableType.ImplicitNo;
+            return AllowNullableType.ImplicitNo;
         }
         else if (!isValueType && !containsQuestionMark && !attributeFound)
         {
-            return ParsedType.AllowNullableType.ImplicitYes;
+            return AllowNullableType.ImplicitYes;
         }
         else if (attributeFound)
         {
             if (!attributeValue)
             {
-                return ParsedType.AllowNullableType.ExplicitNo;
+                return AllowNullableType.ExplicitNo;
             }
             else
             {
-                return ParsedType.AllowNullableType.ExplicitNoThrowIfNull;
+                return AllowNullableType.ExplicitNoThrowIfNull;
             }
         }
         else if (containsQuestionMark && !attributeFound)
         {
-            return ParsedType.AllowNullableType.ExplicitYes;
+            return AllowNullableType.ExplicitYes;
         }
 
         throw new Exception("failed to parse whether type allows nullable or not");

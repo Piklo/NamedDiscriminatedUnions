@@ -166,7 +166,7 @@ public static class ConstructorTests
     [MemberData(nameof(GetGetConstructorParameterTypeStringParameters))]
     public static void GetConstructorParameterTypeString(GetConstructorParameterTypeStringParameters parameters)
     {
-        var str = BaseGenerator.GetConstructorParameterTypeString(parameters.ConstructorTypeParameter);
+        var str = BaseGenerator.GetParameterTypeString(parameters.ConstructorTypeParameter);
 
         str.Should().Be(parameters.Expected);
     }
