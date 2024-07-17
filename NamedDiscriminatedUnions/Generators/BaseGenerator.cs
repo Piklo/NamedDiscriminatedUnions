@@ -97,6 +97,7 @@ internal static class BaseGenerator
         writer.WriteLine("private readonly Tag tag;");
         writer.WriteLine();
     }
+
     internal static void AppendConstructor<T>(IndentedTextWriter writer, string typeName, T[] types)
         where T : IConstructorParameters
     {
@@ -124,7 +125,7 @@ internal static class BaseGenerator
     }
 
     internal static string GetConstructorParameterTypeString<T>(T type)
-        where T : IConstructorParameters
+        where T : ICouldBeNull
     {
         if (CouldBeNull(type) && !type.FullTypeName.EndsWith("?"))
         {
