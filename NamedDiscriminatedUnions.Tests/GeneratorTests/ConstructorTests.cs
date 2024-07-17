@@ -26,15 +26,9 @@ public static class ConstructorTests
     [MemberData(nameof(GetAppendConstructorDeclarationParameters))]
     public static void AppendConstructorDeclaration(AppendConstructorDeclarationParameters parameters)
     {
-        var types = new ConstructorTypeParameter[parameters.ConstructorTypeParameters.Length];
-        for (var i = 0; i < parameters.ConstructorTypeParameters.Length; i++)
-        {
-            var temp = parameters.ConstructorTypeParameters[i];
-            types[i] = new(temp.FullTypeName, temp.IsValueType, temp.FieldName);
-        }
         using var writer = Helper.GetIndentedTextWriter();
-        BaseGenerator.AppendConstructorDeclaration(writer, parameters.TypeName, types);
 
+        BaseGenerator.AppendConstructorDeclaration(writer, parameters.TypeName, parameters.ConstructorTypeParameters);
         var str = writer.InnerWriter.ToString();
 
         str.Should().Be(parameters.Expected);
