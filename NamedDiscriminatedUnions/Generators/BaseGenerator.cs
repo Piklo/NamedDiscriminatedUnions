@@ -35,7 +35,7 @@ internal static class BaseGenerator
 
         var code = baseWriter.ToString();
 
-        var fileName = $"{data.TypeName}.g.cs";
+        var fileName = $"{data.TypeName}{(data.Generics.Array.Length > 0 ? "`" + data.Generics.Array.Length : "")}.g.cs";
         productionContext.AddSource(fileName, code);
     }
 
