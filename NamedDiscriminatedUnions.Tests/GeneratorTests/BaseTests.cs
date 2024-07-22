@@ -22,7 +22,6 @@ public static class BaseTests
     }
 
     [Theory]
-    [InlineData(null, "")]
     [InlineData("", "")]
     [InlineData("TestNamespace", """
         namespace TestNamespace;
@@ -34,7 +33,7 @@ public static class BaseTests
 
 
         """)]
-    public static void AppendNamespace(string? fullNamespace, string expected)
+    public static void AppendNamespace(string fullNamespace, string expected)
     {
         using var writer = Helper.GetIndentedTextWriter();
 

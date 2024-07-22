@@ -47,7 +47,7 @@ internal static class BaseGenerator
         writer.WriteEmptyLine();
     }
 
-    internal static void AppendNamespace(IndentedTextWriter writer, string? FullNamespace)
+    internal static void AppendNamespace(IndentedTextWriter writer, string FullNamespace)
     {
         if (!string.IsNullOrWhiteSpace(FullNamespace))
         {
@@ -74,6 +74,7 @@ internal static class BaseGenerator
         var genericsStr = generics.Count > 0 ? $"<{string.Join(", ", generics)}>" : string.Empty;
         return $"{typeName}{genericsStr}";
     }
+
     internal static void AppendTagsEnum<T>(IndentedTextWriter writer, T[] types)
         where T : IFieldName
     {
@@ -170,15 +171,9 @@ internal static class BaseGenerator
     {
         var tagName = GetTagName(type);
         var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
-        AppendIsTypeMethodWithOut(writer, type.FieldName, tagName, type.FullUserTypeName, canUseNotNullWhenAttribute);
-    }
-
-    internal static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, string fieldName, string tagName, string parameterType, bool canUseNotNullWhenAttribute)
-    {
         var notNullWhenAttribute = GetNotNullAttribute(canUseNotNullWhenAttribute);
 
-        writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {parameterType} value)");
-
+        writer.WriteLine($"public readonly bool Is{tagName}({notNullWhenAttribute}out {type.FullUserTypeName} value)");
         writer.WriteIndentedBlock((writer) =>
         {
             writer.WriteLine($"if (tag == Tag.{tagName})");
@@ -186,11 +181,11 @@ internal static class BaseGenerator
             {
                 if (canUseNotNullWhenAttribute)
                 {
-                    writer.WriteLine($"value = this.{fieldName}!;"); /// we can use null forgiving because of <see cref="ParsedType.AllowNullableType.ExplicitNoThrowIfNull"/>
+                    writer.WriteLine($"value = this.{type.FieldName}!;"); /// we can use null forgiving because of <see cref="DisallowNullStatus.ExistsThrowsIfNull"/>
                 }
                 else
                 {
-                    writer.WriteLine($"value = this.{fieldName};");
+                    writer.WriteLine($"value = this.{type.FieldName};");
                 }
 
                 writer.WriteLine("return true;");

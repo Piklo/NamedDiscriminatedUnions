@@ -122,21 +122,6 @@ public static class ConstructorTests
         };
     }
 
-    public record struct ConstructorTypeParameter(string TypeName, bool IsValueType) : IXunitSerializable
-    {
-        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
-        {
-            TypeName = info.GetValue<string>(nameof(TypeName));
-            IsValueType = info.GetValue<bool>(nameof(IsValueType));
-        }
-
-        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
-        {
-            info.AddValue(nameof(TypeName), TypeName);
-            info.AddValue(nameof(IsValueType), IsValueType);
-        }
-    }
-
     public record struct ConstructorBody(string FieldName) : IFieldName, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
