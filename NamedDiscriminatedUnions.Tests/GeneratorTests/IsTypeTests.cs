@@ -125,35 +125,46 @@ public static class IsTypeTests
         }
     }
 
+    public record struct AppendIsTypeMethodWithOutType(string FullUserTypeName, string FieldName, DisallowNullStatus DisallowNullStatus) : IFieldName, IDisallowNullStatus, IFullUserTypeName, IXunitSerializable
+    {
+        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+        {
+            FullUserTypeName = info.GetValue<string>(nameof(FullUserTypeName));
+            FieldName = info.GetValue<string>(nameof(FieldName));
+            DisallowNullStatus = info.GetValue<DisallowNullStatus>(nameof(DisallowNullStatus));
+        }
+
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(FullUserTypeName), FullUserTypeName);
+            info.AddValue(nameof(FieldName), FieldName);
+            info.AddValue(nameof(DisallowNullStatus), DisallowNullStatus);
+        }
+    }
+
     [Theory]
     [MemberData(nameof(GetAppendIsTypeMethodWithOutParameters))]
     public static void AppendIsTypeMethodWithOut(AppendIsTypeMethodWithOutParameter parameters)
     {
         using var writer = Helper.GetIndentedTextWriter();
 
-        BaseGenerator.AppendIsTypeMethodWithOut(writer, parameters.FieldName, parameters.TagName, parameters.ParameterType, parameters.CanUseNotNullWhenAttribute);
+        BaseGenerator.AppendIsTypeMethodWithOut(writer, parameters.AppendIsTypeMethodWithOutType);
         var str = writer.InnerWriter.ToString();
 
         str.Should().Be(parameters.Expected);
     }
 
-    public record struct AppendIsTypeMethodWithOutParameter(string FieldName, string TagName, string ParameterType, bool CanUseNotNullWhenAttribute, string Expected) : IXunitSerializable
+    public record struct AppendIsTypeMethodWithOutParameter(AppendIsTypeMethodWithOutType AppendIsTypeMethodWithOutType, string Expected) : IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {
-            FieldName = info.GetValue<string>(nameof(FieldName));
-            TagName = info.GetValue<string>(nameof(TagName));
-            ParameterType = info.GetValue<string>(nameof(ParameterType));
-            CanUseNotNullWhenAttribute = info.GetValue<bool>(nameof(CanUseNotNullWhenAttribute));
+            AppendIsTypeMethodWithOutType = info.GetValue<AppendIsTypeMethodWithOutType>(nameof(AppendIsTypeMethodWithOutType));
             Expected = info.GetValue<string>(nameof(Expected));
         }
 
-        void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
         {
-            info.AddValue(nameof(FieldName), FieldName);
-            info.AddValue(nameof(TagName), TagName);
-            info.AddValue(nameof(ParameterType), ParameterType);
-            info.AddValue(nameof(CanUseNotNullWhenAttribute), CanUseNotNullWhenAttribute);
+            info.AddValue(nameof(AppendIsTypeMethodWithOutType), AppendIsTypeMethodWithOutType);
             info.AddValue(nameof(Expected), Expected);
         }
     }
@@ -162,7 +173,7 @@ public static class IsTypeTests
     {
         return new()
         {
-            new("value", "Value", "int", false,
+            new(new("int", "value", DisallowNullStatus.None),
 @"public readonly bool IsValue(out int value)
 {
     if (tag == Tag.Value)
@@ -176,7 +187,35 @@ public static class IsTypeTests
 }
 
 "),
-            new("value", "Value", "int?", false,
+            new(new("int", "value", DisallowNullStatus.ExistsAllowsNull),
+@"public readonly bool IsValue(out int value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+            new(new("int", "value", DisallowNullStatus.ExistsThrowsIfNull),
+@"public readonly bool IsValue([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out int value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value!;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+            new(new("int?", "value", DisallowNullStatus.None),
 @"public readonly bool IsValue(out int? value)
 {
     if (tag == Tag.Value)
@@ -190,7 +229,21 @@ public static class IsTypeTests
 }
 
 "),
-            new("value", "Value", "int?", true,
+            new(new("int?", "value", DisallowNullStatus.ExistsAllowsNull),
+@"public readonly bool IsValue(out int? value)
+{
+    if (tag == Tag.Value)
+    {
+        value = this.value;
+        return true;
+    }
+    
+    value = default;
+    return false;
+}
+
+"),
+            new(new("int?", "value", DisallowNullStatus.ExistsThrowsIfNull),
 @"public readonly bool IsValue([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out int? value)
 {
     if (tag == Tag.Value)
