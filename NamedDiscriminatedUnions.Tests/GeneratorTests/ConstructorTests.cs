@@ -1,23 +1,22 @@
 ﻿using NamedDiscriminatedUnions.Generators;
+using NamedDiscriminatedUnions.ParsedTypeStuff;
 using Xunit.Abstractions;
 
 namespace NamedDiscriminatedUnions.Tests.GeneratorTests;
 
 public static class ConstructorTests
 {
-    public record struct ConstructorParameter(string FullTypeName, bool IsValueType, string FieldName) : IConstructorParameters, IXunitSerializable
+    public record struct ConstructorParameter(string FullTypeName, string FieldName) : IFieldName, IFullTypeName, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {
             FullTypeName = info.GetValue<string>(nameof(FullTypeName));
-            IsValueType = info.GetValue<bool>(nameof(IsValueType));
             FieldName = info.GetValue<string>(nameof(FieldName));
         }
 
         readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
         {
             info.AddValue(nameof(FullTypeName), FullTypeName);
-            info.AddValue(nameof(IsValueType), IsValueType);
             info.AddValue(nameof(FieldName), FieldName);
         }
     }
@@ -57,7 +56,7 @@ public static class ConstructorTests
         {
             new("Union",
             [
-                new("int", true, "value")
+                new("int", "value")
             ],
             """
             private Union(Tag tag, int value)
@@ -65,7 +64,7 @@ public static class ConstructorTests
             """),
             new("Union2",
             [
-                new("int?", true, "value2"),
+                new("int?", "value2"),
             ],
             """
             private Union2(Tag tag, int? value2)
@@ -73,7 +72,7 @@ public static class ConstructorTests
             """),
             new("Union2",
             [
-                new("System.Collections.Generic.HashSet<int>", false, "ints"),
+                new("System.Collections.Generic.HashSet<int>?", "ints"),
             ],
             """
             private Union2(Tag tag, System.Collections.Generic.HashSet<int>? ints)
@@ -81,16 +80,8 @@ public static class ConstructorTests
             """),
             new("Union2",
             [
-                new("System.Collections.Generic.HashSet<int>?", false, "ints"),
-            ],
-            """
-            private Union2(Tag tag, System.Collections.Generic.HashSet<int>? ints)
-
-            """),
-            new("Union2",
-            [
-                new("System.Collections.Generic.HashSet<int>", false, "ints1"),
-                new("System.Collections.Generic.HashSet<int>?", false, "ints2"),
+                new("System.Collections.Generic.HashSet<int>?", "ints1"),
+                new("System.Collections.Generic.HashSet<int>?", "ints2"),
             ],
             """
             private Union2(Tag tag, System.Collections.Generic.HashSet<int>? ints1, System.Collections.Generic.HashSet<int>? ints2)
@@ -98,7 +89,7 @@ public static class ConstructorTests
             """),
             new("Union",
             [
-                new("TAny", false, "field"), // no constraints
+                new("TAny?", "field"), // no constraints
             ],
             """
             private Union(Tag tag, TAny? field)
@@ -106,15 +97,7 @@ public static class ConstructorTests
             """),
             new("Union",
             [
-                new("TAny?", false, "field"), // no constraints
-            ],
-            """
-            private Union(Tag tag, TAny? field)
-
-            """),
-            new("Union",
-            [
-                new("TStruct", true, "field"), // where TStruct : struct
+                new("TStruct", "field"), // where TStruct : struct
             ],
             """
             private Union(Tag tag, TStruct field)
@@ -122,7 +105,7 @@ public static class ConstructorTests
             """),
             new("Union",
             [
-                new("TStruct?", true, "field"), // where TStruct : struct
+                new("TStruct?", "field"), // where TStruct : struct
             ],
             """
             private Union(Tag tag, TStruct? field)
@@ -130,15 +113,7 @@ public static class ConstructorTests
             """),
             new("Union",
             [
-                new("TClass", false, "field"), // where TClass : class
-            ],
-            """
-            private Union(Tag tag, TClass? field)
-
-            """),
-            new("Union",
-            [
-                new("TClass?", false, "field"), // where TClass : class
+                new("TClass?", "field"), // where TClass : class
             ],
             """
             private Union(Tag tag, TClass? field)
@@ -147,63 +122,22 @@ public static class ConstructorTests
         };
     }
 
-    public record struct ConstructorTypeParameter(string FullTypeName, bool IsValueType) : ICouldBeNull, IXunitSerializable
+    public record struct ConstructorTypeParameter(string TypeName, bool IsValueType) : IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {
-            FullTypeName = info.GetValue<string>(nameof(FullTypeName));
+            TypeName = info.GetValue<string>(nameof(TypeName));
             IsValueType = info.GetValue<bool>(nameof(IsValueType));
         }
 
         readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
         {
-            info.AddValue(nameof(FullTypeName), FullTypeName);
+            info.AddValue(nameof(TypeName), TypeName);
             info.AddValue(nameof(IsValueType), IsValueType);
         }
     }
 
-    [Theory]
-    [MemberData(nameof(GetGetConstructorParameterTypeStringParameters))]
-    public static void GetConstructorParameterTypeString(GetConstructorParameterTypeStringParameters parameters)
-    {
-        var str = BaseGenerator.GetParameterTypeString(parameters.ConstructorTypeParameter);
-
-        str.Should().Be(parameters.Expected);
-    }
-
-    public record struct GetConstructorParameterTypeStringParameters(ConstructorTypeParameter ConstructorTypeParameter, string Expected) : IXunitSerializable
-    {
-        void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
-        {
-            ConstructorTypeParameter = info.GetValue<ConstructorTypeParameter>(nameof(ConstructorTypeParameter));
-            Expected = info.GetValue<string>(nameof(Expected));
-        }
-
-        readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
-        {
-            info.AddValue(nameof(ConstructorTypeParameter), ConstructorTypeParameter);
-            info.AddValue(nameof(Expected), Expected);
-        }
-    }
-
-    public static TheoryData<GetConstructorParameterTypeStringParameters> GetGetConstructorParameterTypeStringParameters()
-    {
-        return new()
-        {
-            new(new("int", true), "int"),
-            new(new("int?", true), "int?"),
-            new(new("System.Collections.Generic.HashSet<int>", false), "System.Collections.Generic.HashSet<int>?"),
-            new(new("System.Collections.Generic.HashSet<int>?", false), "System.Collections.Generic.HashSet<int>?"),
-            new(new("TAny", false), "TAny?"), // no constraints
-            new(new("TAny?", false), "TAny?"), // no constraints
-            new(new("TStruct", true), "TStruct"), // where T : struct
-            new(new("TStruct?", true), "TStruct?"), // where T : struct
-            new(new("TClass", false), "TClass?"), // where T : class
-            new(new("TClass?", false), "TClass?"), // where T : class
-        };
-    }
-
-    public record struct ConstructorBody(string FieldName) : IConstructorBody, IXunitSerializable
+    public record struct ConstructorBody(string FieldName) : IFieldName, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {

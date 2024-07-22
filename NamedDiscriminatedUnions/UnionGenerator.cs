@@ -2,12 +2,15 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NamedDiscriminatedUnions.Generator.Miscellaneous;
 using NamedDiscriminatedUnions.Generators;
+using NamedDiscriminatedUnions.ParsedTypeStuff;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
 namespace NamedDiscriminatedUnions;
+
+internal readonly record struct GenericType(string FullNamespace, string TypeName, bool IsValueType, bool IsReferenceType, bool IsGeneric);
 
 [Generator]
 internal class UnionGenerator : IIncrementalGenerator
@@ -33,7 +36,7 @@ internal class UnionGenerator : IIncrementalGenerator
     {
         var name = context.TargetSymbol.Name;
         var fullNamespace = GetFullNamespace(context.TargetSymbol);
-        var generics = GetGenerics(context);
+        var generics = GetGenerics((INamedTypeSymbol)context.TargetSymbol);
         var types = GetParsedTypes(context);
         var isRefStruct = ((INamedTypeSymbol)context.TargetSymbol).IsRefLikeType;
         var data = new DiscriminatedUnionData(name, fullNamespace, generics.ToEquatableArray(), types.ToEquatableArray(), isRefStruct);
@@ -43,8 +46,13 @@ internal class UnionGenerator : IIncrementalGenerator
 
     private static string GetFullNamespace(ISymbol symbol)
     {
-        var namespaceBuilder = new StringBuilder();
         var currentNamespace = symbol.ContainingNamespace;
+        if (currentNamespace is null)
+        {
+            return "";
+        }
+
+        var namespaceBuilder = new StringBuilder();
         while (currentNamespace is not null && !string.IsNullOrWhiteSpace(currentNamespace.Name))
         {
             if (namespaceBuilder.Length != 0)
@@ -58,11 +66,16 @@ internal class UnionGenerator : IIncrementalGenerator
         return namespaceBuilder.ToString();
     }
 
-    private static string[] GetGenerics(GeneratorAttributeSyntaxContext context)
+    private static string[] GetGenerics(INamedTypeSymbol? symbol)
     {
+        if (symbol is null)
+        {
+            return [];
+        }
+
         var genericsList = new List<string>();
 
-        var generics = ((INamedTypeSymbol)context.TargetSymbol).TypeArguments;
+        var generics = symbol.TypeArguments;
         foreach (var type in generics)
         {
             var typeStr = type.ToString();
@@ -85,84 +98,46 @@ internal class UnionGenerator : IIncrementalGenerator
                 continue;
             }
 
+
             var type = field.Type;
-            var fullTypeName = type.ToString();
+
+            var fullUserTypeName = type.ToString();
+            var fullTypeName = fullUserTypeName;
+
+            if (!type.IsValueType && !fullTypeName.EndsWith("?"))
+            {
+                fullTypeName += '?';
+            }
+
             var fieldName = member.Name;
             var isValueType = type.IsValueType;
-            var isReferenceType = type.IsReferenceType;
-            var isGeneric = IsGeneric(type);
-            var containsGeneric = ContainsGeneric(type);
-            var allowNullable = ParseAllowNullable(field, fullTypeName, isValueType, isReferenceType);
+            var disallowNullStatus = ParseDisallowNullAttribute(field);
 
-            var parsed = new ParsedType(fullTypeName, fieldName, isValueType, isReferenceType, isGeneric, containsGeneric, allowNullable);
+            var parsed = new ParsedType(fullTypeName, fullUserTypeName, fieldName, isValueType, disallowNullStatus);
             list.Add(parsed);
         }
 
         return [.. list];
     }
 
-    private static bool IsGeneric(ITypeSymbol type)
+    private static DisallowNullStatus ParseDisallowNullAttribute(IFieldSymbol field)
     {
-        return type.Kind == SymbolKind.TypeParameter;
+        var (attributeFound, throwIfNull) = GetAllowNullableAttributeData(field);
+
+        if (!attributeFound)
+        {
+            return DisallowNullStatus.None;
+        }
+
+        if (!throwIfNull)
+        {
+            return DisallowNullStatus.ExistsAllowsNull;
+        }
+
+        return DisallowNullStatus.ExistsThrowsIfNull;
     }
 
-    private static bool ContainsGeneric(ITypeSymbol type)
-    {
-        if (type is not INamedTypeSymbol named)
-        {
-            return false;
-        }
-
-        var arguments = named.TypeArguments;
-        foreach (var argument in arguments)
-        {
-            if (IsOrContainsGeneric(argument))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool IsOrContainsGeneric(ITypeSymbol type)
-    {
-        return IsGeneric(type) || ContainsGeneric(type);
-    }
-
-    private static AllowNullableType ParseAllowNullable(IFieldSymbol field, string fullTypeName, bool isValueType, bool isReferenceType)
-    {
-        var containsQuestionMark = fullTypeName.EndsWith("?");
-        var (attributeFound, attributeValue) = GetAllowNullableAttributeData(field);
-
-        if (isValueType && !containsQuestionMark)
-        {
-            return AllowNullableType.ImplicitNo;
-        }
-        else if (!isValueType && !containsQuestionMark && !attributeFound)
-        {
-            return AllowNullableType.ImplicitYes;
-        }
-        else if (attributeFound)
-        {
-            if (!attributeValue)
-            {
-                return AllowNullableType.ExplicitNo;
-            }
-            else
-            {
-                return AllowNullableType.ExplicitNoThrowIfNull;
-            }
-        }
-        else if (containsQuestionMark && !attributeFound)
-        {
-            return AllowNullableType.ExplicitYes;
-        }
-
-        throw new Exception("failed to parse whether type allows nullable or not");
-    }
-
-    private static (bool attributeFound, bool attributeValue) GetAllowNullableAttributeData(IFieldSymbol field)
+    private static (bool attributeFound, bool throwIfNull) GetAllowNullableAttributeData(IFieldSymbol field)
     {
         var attributes = field.GetAttributes();
         foreach (var attribute in attributes)
@@ -173,9 +148,9 @@ internal class UnionGenerator : IIncrementalGenerator
                 continue;
             }
 
-            if (attribute.ConstructorArguments[0].Value is bool explicitValue)
+            if (attribute.ConstructorArguments[0].Value is bool throwIfNull)
             {
-                return (true, explicitValue);
+                return (true, throwIfNull);
             }
             else
             {

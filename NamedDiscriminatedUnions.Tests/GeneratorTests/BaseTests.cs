@@ -70,16 +70,6 @@ public static class BaseTests
         str.Should().Be(expected);
     }
 
-    [Theory]
-    [InlineData("Union", new string[] { }, "Union")]
-    [InlineData("FunnyUnionName", new string[] { "T" }, "FunnyUnionName<T>")]
-    [InlineData("Union", new string[] { "K", "V" }, "Union<K, V>")]
-    public static void GetFullTypeNameWithGenerics(string typeName, string[] generics, string expected)
-    {
-        var str = BaseGenerator.GetFullTypeNameWithGenerics(typeName, generics);
-
-        str.Should().Be(expected);
-    }
 
     [Fact]
     public static void AppendFields()

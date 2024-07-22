@@ -1,11 +1,12 @@
 ﻿using NamedDiscriminatedUnions.Generators;
+using NamedDiscriminatedUnions.ParsedTypeStuff;
 using Xunit.Abstractions;
 
 namespace NamedDiscriminatedUnions.Tests.GeneratorTests;
 
 public static class IsTypeTests
 {
-    public record struct TagEnumData(string FieldName) : ITagEnumData, IXunitSerializable
+    public record struct TagEnumData(string FieldName) : IFieldName, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {
@@ -61,20 +62,16 @@ public static class IsTypeTests
         };
     }
 
-    public record struct NotNullAttribute(string FullTypeName, bool IsValueType, AllowNullableType AllowNullableInFromMethods) : INotNullAttribute, IXunitSerializable
+    public record struct NotNullAttribute(DisallowNullStatus DisallowNullStatus) : IDisallowNullStatus, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {
-            FullTypeName = info.GetValue<string>(nameof(FullTypeName));
-            IsValueType = info.GetValue<bool>(nameof(IsValueType));
-            AllowNullableInFromMethods = info.GetValue<AllowNullableType>(nameof(AllowNullableInFromMethods));
+            DisallowNullStatus = info.GetValue<DisallowNullStatus>(nameof(DisallowNullStatus));
         }
 
         readonly void IXunitSerializable.Serialize(IXunitSerializationInfo info)
         {
-            info.AddValue(nameof(FullTypeName), FullTypeName);
-            info.AddValue(nameof(IsValueType), IsValueType);
-            info.AddValue(nameof(AllowNullableInFromMethods), AllowNullableInFromMethods);
+            info.AddValue(nameof(DisallowNullStatus), DisallowNullStatus);
         }
     }
 
@@ -106,43 +103,9 @@ public static class IsTypeTests
     {
         return new()
         {
-            new(new("int", true, AllowNullableType.ImplicitNo), false),
-            new(new("int", true, AllowNullableType.ExplicitNo), false),
-            new(new("int", true, AllowNullableType.ExplicitNoThrowIfNull), false),
-            new(new("int?", true, AllowNullableType.ExplicitYes), false),
-            new(new("int?", true, AllowNullableType.ExplicitNo), false),
-            new(new("int?", true, AllowNullableType.ExplicitNoThrowIfNull), true),
-
-            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ImplicitYes), false),
-            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ExplicitNo), false),
-            new(new("System.Collections.Generic.HashSet<int>", false, AllowNullableType.ExplicitNoThrowIfNull), true),
-            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitYes), false),
-            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitNo), false),
-            new(new("System.Collections.Generic.HashSet<int>?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
-
-            // no constraints
-            new(new("TAny", false, AllowNullableType.ImplicitYes), false),
-            new(new("TAny", false, AllowNullableType.ExplicitNo), false),
-            new(new("TAny", false, AllowNullableType.ExplicitNoThrowIfNull), true),
-            new(new("TAny?", false, AllowNullableType.ExplicitYes), false),
-            new(new("TAny?", false, AllowNullableType.ExplicitNo), false),
-            new(new("TAny?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
-
-            // where T : struct
-            new(new("TStruct", true, AllowNullableType.ImplicitNo), false),
-            new(new("TStruct", true, AllowNullableType.ExplicitNo), false),
-            new(new("TStruct", true, AllowNullableType.ExplicitNoThrowIfNull), false),
-            new(new("TStruct?", true, AllowNullableType.ExplicitYes), false),
-            new(new("TStruct?", true, AllowNullableType.ExplicitNo), false),
-            new(new("TStruct?", true, AllowNullableType.ExplicitNoThrowIfNull), true),
-
-            // where T : class
-            new(new("TClass", false, AllowNullableType.ImplicitYes), false),
-            new(new("TClass", false, AllowNullableType.ExplicitNo), false),
-            new(new("TClass", false, AllowNullableType.ExplicitNoThrowIfNull), true),
-            new(new("TClass?", false, AllowNullableType.ExplicitYes), false),
-            new(new("TClass?", false, AllowNullableType.ExplicitNo), false),
-            new(new("TClass?", false, AllowNullableType.ExplicitNoThrowIfNull), true),
+            new(new(DisallowNullStatus.None), false),
+            new(new(DisallowNullStatus.ExistsAllowsNull), false),
+            new(new(DisallowNullStatus.ExistsThrowsIfNull), true),
         };
     }
 

@@ -1,11 +1,12 @@
 ﻿using NamedDiscriminatedUnions.Generators;
+using NamedDiscriminatedUnions.ParsedTypeStuff;
 using Xunit.Abstractions;
 
 namespace NamedDiscriminatedUnions.Tests.GeneratorTests;
 
 public static class TagEnumTests
 {
-    public record struct TagEnumData(string FieldName) : ITagEnumData, IXunitSerializable
+    public record struct TagEnumData(string FieldName) : IFieldName, IXunitSerializable
     {
         void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
         {

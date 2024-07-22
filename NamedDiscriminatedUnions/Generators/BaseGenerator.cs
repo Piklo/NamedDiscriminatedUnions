@@ -1,6 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using NamedDiscriminatedUnions.Generator.Miscellaneous;
+using NamedDiscriminatedUnions.ParsedTypeStuff;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
 
 namespace NamedDiscriminatedUnions.Generators;
@@ -19,12 +21,12 @@ internal static class BaseGenerator
 
         AppendHeader(writer);
         AppendNamespace(writer, data.FullNamespace);
-        AppendDeclaration(writer, data.Name, data.Generics.Array);
+        AppendDeclaration(writer, data.TypeName, data.Generics.Array);
         writer.WriteIndentedBlock((writer) =>
         {
             AppendTagsEnum(writer, data.Types.Array);
             AppendFields(writer);
-            AppendConstructor(writer, data.Name, data.Types.Array);
+            AppendConstructor(writer, data.TypeName, data.Types.Array);
             AppendIsTypeMethods(writer, data.Types.Array);
             AppendFromTypeMethods(writer, data);
             AppendMatchMethod(writer, data);
@@ -33,7 +35,7 @@ internal static class BaseGenerator
 
         var code = baseWriter.ToString();
 
-        var fileName = $"{data.Name}.g.cs";
+        var fileName = $"{data.TypeName}.g.cs";
         productionContext.AddSource(fileName, code);
     }
 
@@ -61,14 +63,19 @@ internal static class BaseGenerator
         writer.WriteLine($"readonly partial struct {type}");
     }
 
-    internal static string GetFullTypeNameWithGenerics(string typeName, string[] generics)
+    internal static string GetFullTypeNameWithGenerics<T>(string typeName, T generics)
+        where T : IReadOnlyList<string>
     {
-        var genericsStr = generics.Length > 0 ? $"<{string.Join(", ", generics)}>" : string.Empty;
+        if (generics.Count == 0)
+        {
+            return typeName;
+        }
+
+        var genericsStr = generics.Count > 0 ? $"<{string.Join(", ", generics)}>" : string.Empty;
         return $"{typeName}{genericsStr}";
     }
-
     internal static void AppendTagsEnum<T>(IndentedTextWriter writer, T[] types)
-        where T : ITagEnumData
+        where T : IFieldName
     {
         writer.WriteLine("public enum Tag : byte");
         writer.WriteIndentedBlock((writer) =>
@@ -84,7 +91,7 @@ internal static class BaseGenerator
     }
 
     internal static string GetTagName<T>(T type)
-        where T : ITagEnumData
+        where T : IFieldName
     {
         var first = char.ToUpper(type.FieldName[0]);
         var tagName = first + type.FieldName.Substring(1);
@@ -99,7 +106,7 @@ internal static class BaseGenerator
     }
 
     internal static void AppendConstructor<T>(IndentedTextWriter writer, string typeName, T[] types)
-        where T : IConstructorParameters
+        where T : IFieldName, IFullTypeName
     {
         AppendConstructorDeclaration(writer, typeName, types);
         AppendConstructorBody(writer, types);
@@ -107,14 +114,13 @@ internal static class BaseGenerator
     }
 
     internal static void AppendConstructorDeclaration<T>(IndentedTextWriter writer, string typeName, T[] types)
-        where T : IConstructorParameters
+        where T : IFieldName, IFullTypeName
     {
         writer.Write($"private {typeName}(Tag tag, ");
         for (var i = 0; i < types.Length; i++)
         {
             var type = types[i];
-            var parameterType = GetParameterTypeString(type);
-            writer.Write($"{parameterType} {type.FieldName}");
+            writer.Write($"{type.FullTypeName} {type.FieldName}");
 
             if (i + 1 < types.Length)
             {
@@ -124,19 +130,8 @@ internal static class BaseGenerator
         writer.WriteLine(")");
     }
 
-    internal static string GetParameterTypeString<T>(T type)
-        where T : ICouldBeNull
-    {
-        if (CouldBeNull(type) && !type.FullTypeName.EndsWith("?"))
-        {
-            return $"{type.FullTypeName}?";
-        }
-
-        return type.FullTypeName;
-    }
-
     internal static void AppendConstructorBody<T>(IndentedTextWriter writer, T[] types)
-        where T : IConstructorBody
+        where T : IFieldName
     {
         writer.WriteIndentedBlock((writer) =>
         {
@@ -149,7 +144,7 @@ internal static class BaseGenerator
     }
 
     internal static void AppendIsTypeMethods<T>(IndentedTextWriter writer, T[] types)
-        where T : IIsTypeMethodOut
+        where T : IFieldName, IDisallowNullStatus, IFullUserTypeName
     {
         foreach (var type in types)
         {
@@ -159,7 +154,7 @@ internal static class BaseGenerator
     }
 
     internal static void AppendIsTypeMethodWithoutOut<T>(IndentedTextWriter writer, T type)
-        where T : ITagEnumData
+        where T : IFieldName
     {
         var tagName = GetTagName(type);
         writer.WriteLine($"public readonly bool Is{tagName}()");
@@ -171,12 +166,11 @@ internal static class BaseGenerator
     }
 
     internal static void AppendIsTypeMethodWithOut<T>(IndentedTextWriter writer, T type)
-        where T : IIsTypeMethodOut
+        where T : IFieldName, IDisallowNullStatus, IFullUserTypeName
     {
         var tagName = GetTagName(type);
-        var parameterType = GetParameterTypeString(type);
         var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
-        AppendIsTypeMethodWithOut(writer, type.FieldName, tagName, parameterType, canUseNotNullWhenAttribute);
+        AppendIsTypeMethodWithOut(writer, type.FieldName, tagName, type.FullUserTypeName, canUseNotNullWhenAttribute);
     }
 
     internal static void AppendIsTypeMethodWithOut(IndentedTextWriter writer, string fieldName, string tagName, string parameterType, bool canUseNotNullWhenAttribute)
@@ -209,7 +203,7 @@ internal static class BaseGenerator
     }
 
     internal static string GetNotNullAttribute<T>(T type)
-        where T : INotNullAttribute
+        where T : IDisallowNullStatus
     {
         var canUseNotNullWhenAttribute = CanUseNotNullWhenAttribute(type);
         return GetNotNullAttribute(canUseNotNullWhenAttribute);
@@ -226,15 +220,9 @@ internal static class BaseGenerator
     }
 
     internal static bool CanUseNotNullWhenAttribute<T>(T type)
-        where T : INotNullAttribute
+        where T : IDisallowNullStatus
     {
-        return CouldBeNull(type) && type.AllowNullableInFromMethods == AllowNullableType.ExplicitNoThrowIfNull;
-    }
-
-    internal static bool CouldBeNull<T>(T type)
-        where T : ICouldBeNull
-    {
-        return type.FullTypeName.EndsWith("?") || !type.IsValueType;
+        return type.DisallowNullStatus == DisallowNullStatus.ExistsThrowsIfNull;
     }
 
 
@@ -244,12 +232,12 @@ internal static class BaseGenerator
         {
             var type = data.Types.Array[i];
             var tag = GetTagName(type);
-            var fullTypeName = GetFullTypeNameWithGenerics(data.Name, data.Generics.Array);
+            var fullTypeName = GetFullTypeNameWithGenerics(data.TypeName, data.Generics.Array);
 
             writer.WriteLine($"public static {fullTypeName} From{tag}({type.FullTypeName} value)");
             writer.WriteIndentedBlock(writer =>
             {
-                if (type.AllowNullableInFromMethods == AllowNullableType.ExplicitNoThrowIfNull)
+                if (type.DisallowNullStatus == DisallowNullStatus.ExistsThrowsIfNull)
                 {
                     writer.WriteLine("if (value is null)");
                     writer.WriteIndentedBlock(writer =>
