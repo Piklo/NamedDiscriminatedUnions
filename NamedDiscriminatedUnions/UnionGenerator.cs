@@ -5,8 +5,6 @@ using System.Threading;
 
 namespace NamedDiscriminatedUnions;
 
-internal readonly record struct GenericType(string FullNamespace, string TypeName, bool IsValueType, bool IsReferenceType, bool IsGeneric);
-
 [Generator]
 internal class UnionGenerator : IIncrementalGenerator
 {
